@@ -1,0 +1,11 @@
+# One web service serves both the game and authoritative WebSocket multiplayer.
+# Free is a demo tier and can sleep. Review costs before changing plans.
+services:
+  - type: web
+    name: 3qio-web
+    runtime: docker
+    plan: free
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/status
