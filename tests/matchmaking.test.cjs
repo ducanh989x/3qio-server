@@ -14,7 +14,7 @@ test('automatic joins share public rooms, exclude friend rooms, support invitati
   const newcomers=await Promise.all(Array.from({length:14},()=>join(port,clients)));assert.ok(newcomers.every(ws=>ws.reply.type==='welcome'));assert.equal(app.rooms.get(a.reply.room).clients.size,16);assert.equal(app.rooms.get('FRIENDS').clients.size,1);assert.equal(app.rooms.size,3);const second=[...app.rooms.values()].find(r=>r.automatic&&r.code!==a.reply.room);assert.equal(second.clients.size,1);
   a.terminate();await until(()=>app.rooms.get(b.reply.room).clients.size===15);const replacement=await join(port,clients);assert.equal(replacement.reply.room,b.reply.room);assert.equal(second.clients.size,1);
   replacement.send(JSON.stringify({type:'join',rulesVersion:11,matchmaking:'auto'}));await sleep(50);assert.equal(app.rooms.get(b.reply.room).clients.size,16);
-  const status=await (await fetch('http://localhost:'+port+'/api/status')).json();assert.equal(status.matchmaking,true);assert.equal(status.version,'2.17.0');
+  const status=await (await fetch('http://localhost:'+port+'/api/status')).json();assert.equal(status.matchmaking,true);assert.equal(status.version,'2.20.0');
  }finally{clients.forEach(ws=>ws.terminate());await until(()=>app.rooms.size===0);await app.close()}
 });
 test('128 concurrent guests respect 16-per-room / 8-room bounds, explicit busy errors and reuse freed slots',{timeout:30000},async()=>{

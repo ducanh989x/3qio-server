@@ -196,7 +196,7 @@ function updateLootHUD(){
  const w=weaponStats(player),d=nearestDrop(player),skill=$('skillButton');
  const worldTime=window.netGame?.active?(window.netGame.worldElapsed||0):elapsed;
  const next=(LootRules.chestWave(worldTime)+1)*LootRules.chestPeriod;
- $('chestWave').textContent='RƯƠNG '+chests.filter(c=>c.alive).length+'/'+LootRules.maxChests+' · BÙ SAU '+formatTime(Math.min(LootRules.chestPeriod,Math.ceil(Math.max(0,next-worldTime))));
+ $('chestWave').textContent='BÙ RƯƠNG SAU '+formatTime(Math.min(LootRules.chestPeriod,Math.ceil(Math.max(0,next-worldTime))));
  $('chestWave').title='Mỗi 60 giây bù rương đã phá. Lv1–5: 70/15/10/4/1%. Đợt 5/10/15… bảo đảm Lv4; 10/20/30… bảo đảm Lv5. Thiếu ô trống thì giữ chờ; ưu tiên Lv5.';
  $('weaponStats').title='Kích thước vũ khí theo phẩm: ×'+w.size.toFixed(2);$('weaponStats').textContent='ATK '+w.atk+' · ASPD '+weaponASPD(player).toFixed(2)+'/s';
  $('dragonCount').textContent='NGỌC '+player.dragonCount+'/7'+(player.level===21?' · CƠ GIÁP':'');$('dragonCount').classList.toggle('hidden',player.dragonCount===0);

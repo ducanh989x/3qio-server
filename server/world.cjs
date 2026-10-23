@@ -17,7 +17,23 @@ function createWorld({botCount=8}={}){
  for(const script of sources)script.runInContext(context,{timeout:3000});
  vm.runInContext(`
  bots=bots.slice(0,${Math.max(0,Math.min(24,botCount))});
- bots.forEach((e,i)=>{e.id='bot-'+i;e.networkHuman=false;e.x=150+i*410;e.y=800+(i%3)*850});
+ bots.forEach((e,i)=>{e.id='bot-'+i;e.networkHuman=false;e.x=150+(i%8)*410;e.y=800+(i%3)*850});
+ let nextBotId=bots.length;
+ function detachActor(e){
+  e.alive=false;e.swing=0;clearUtility(e);bots=bots.filter(other=>other!==e);
+  for(const other of bots){const brain=other.brain;brain?.seen?.delete(e);if(brain?.intent?.visible)brain.intent.visible=brain.intent.visible.filter(sample=>sample.ref!==e);if(other.target?.enemy===e||other.target?.threat===e||brain?.intent?.enemy?.ref===e||brain?.intent?.threat?.ref===e){other.target=null;other.aiTime=0;if(brain)brain.intent=null}}
+ }
+ function setBotCount(count){
+  count=Number.isFinite(count)?Math.max(0,Math.min(24,Math.floor(count))):0;
+  const humans=bots.filter(e=>e.networkHuman),gap=p=>humans.length?Math.min(...humans.map(h=>dist(p,h))):WORLD;
+  let current=bots.filter(e=>!e.networkHuman);
+  // Retire without kill(), rewards, drops or resetting any surviving actor.
+  while(current.length>count){current.sort((a,b)=>Number(a.alive)-Number(b.alive)||gap(b)-gap(a)||a.id.localeCompare(b.id));detachActor(current.shift())}
+  while(current.length<count){let position={x:100,y:100},best=-1;for(let attempt=0;attempt<48;attempt++){const candidate={x:rand(100,WORLD-100),y:rand(100,WORLD-100)},distance=gap(candidate);if(distance>best){position=candidate;best=distance}if(distance>=650)break}
+   const serial=nextBotId++,e=entity(position.x,position.y,Math.floor(rand(1,4)),botNames[serial%botNames.length]);e.id='bot-'+serial;e.networkHuman=false;e.enlistTarget=serial%6<4?CAMP_ZONES[serial%6].team:null;bots.push(e);current.push(e);
+  }
+  return current.length;
+ }
  player.alive=false;player.x=-100000;player.y=-100000;state='playing';paused=false;
  function spawnHuman(e,id,name){
   Object.assign(e,entity(1800+rand(-100,100),1800+rand(-90,90),1,name,false));
@@ -28,7 +44,8 @@ function createWorld({botCount=8}={}){
   get actors(){return bots},get orbs(){return orbs},get chests(){return chests},get drops(){return drops},get elapsed(){return elapsed},
   botRules:BotRules,createBotBrain,botThink,updateBot,loot:LootRules,startingXP,killRewardXP,killDropXP,scatterKillXP,collectXPOrbs,applyWeaponDamage,spawnTreasures,updateChestWaves,weaponStats,weaponASPD,pickUp,collectDrop,equipFromBag,collectDragon,breakTreasure,useWeaponSkill,addTreasureDrop,
   addHuman(id,name){const e=spawnHuman({},id,name);bots.push(e);return e},
-  removeHuman(e){bots=bots.filter(other=>other!==e)},
+  removeHuman(e){detachActor(e)},
+  setBotCount,
   respawn(e){if(e.alive||e.respawn>0)return false;spawnHuman(e,e.id,e.name);return true},
   step(dt){
    player.level=Math.max(1,...bots.filter(e=>e.networkHuman).map(e=>e.level));

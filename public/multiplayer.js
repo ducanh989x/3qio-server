@@ -6,10 +6,17 @@ function onlinePosition(e,time,delay){
  for(let i=1;i<samples.length;i++){const a=samples[i-1],b=samples[i];if(t<=b.t){const f=clamp((t-a.t)/Math.max(.001,b.t-a.t),0,1);return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f}}}
  const last=samples[samples.length-1],ahead=clamp(t-last.t,0,.08);return {x:last.x+(e.netVX||0)*ahead,y:last.y+(e.netVY||0)*ahead};
 }
+// Smooth the arrival phase of local snapshots, not authoritative position/state.
+function localDisplayTarget(e,intent,speed,phase){
+ const back=Math.max(-.08,Math.min(0,phase)),ahead=Math.min(.1,Math.max(0,phase)+.025);
+ let dx=(e.netVX||0)*back+intent.x*speed*ahead,dy=(e.netVY||0)*back+intent.y*speed*ahead;
+ const length=Math.hypot(dx,dy),limit=speed*.1;if(length>limit){dx*=limit/length;dy*=limit/length}
+ return{x:e.netX+dx,y:e.netY+dy};
+}
 (() => {
  const status=$('lobbyStatus'),start=$('startButton'),roomInput=$('roomCode');
- let mode='online',matchmaking='auto',discovering=true,modeTouched=false,endpoint='',socket=null,id=null,started=false,entities=new Map(),lastSend=0,lastPing=0,lastStateAt=0,ping=0,timeout=null,attackPulse=false,dashPulse=false,pickupPulse=false,skillPulse=false,latest=null,inputDirty=true,lastInputKey='',wireFields=null,arrivalJitter=0,remoteDelay=.06,remoteClock=null;
- const net=window.netGame={active:false,mode:()=>mode,room:'',humans:0,
+ let mode='online',matchmaking='auto',discovering=true,modeTouched=false,endpoint='',socket=null,id=null,started=false,entities=new Map(),lastSend=0,lastPing=0,lastStateAt=0,ping=0,timeout=null,attackPulse=false,dashPulse=false,pickupPulse=false,skillPulse=false,latest=null,inputDirty=true,lastInputKey='',wireFields=null,arrivalJitter=0,remoteDelay=.06,remoteClock=null,localClock=null;
+ const net=window.netGame={active:false,mode:()=>mode,room:'',humans:0,bots:0,leaderboard:null,top10:null,selfRank:null,scoreTop10:null,scoreRank:null,
   inputChanged(){inputDirty=true},
   stopInput(){if(started&&socket?.readyState===WebSocket.OPEN){lastInputKey=JSON.stringify({type:'input',x:0,y:0,angle:player.angle,attack:false,dash:false,pickup:false,skill:false,sprint:false});socket.send(lastInputKey);lastSend=performance.now()}inputDirty=false;attackPulse=dashPulse=pickupPulse=skillPulse=false},
   equipBag(itemId){if(started&&socket?.readyState===WebSocket.OPEN&&player.alive)socket.send(JSON.stringify({type:'equip',itemId}))},
@@ -18,7 +25,7 @@ function onlinePosition(e,time,delay){
   pickup(){if(!paused&&player.alive){pickupPulse=true;inputDirty=true}},skill(){if(!paused&&player.alive){skillPulse=true;inputDirty=true}},
   leave(reason=''){
    clearControls();clearTimeout(timeout);const old=socket;socket=null;if(old){old.onclose=null;old.close()}
-   net.active=false;started=false;entities.clear();latest=null;attackPulse=false;dashPulse=false;pickupPulse=false;skillPulse=false;
+   net.active=false;net.leaderboard=null;net.top10=null;net.selfRank=null;net.scoreTop10=null;net.scoreRank=null;net.humans=net.bots=0;started=false;entities.clear();latest=null;attackPulse=false;dashPulse=false;pickupPulse=false;skillPulse=false;
    finishMatch(reason);$('netBar').classList.add('hidden');
    start.disabled=false;start.textContent=startLabel();status.textContent=reason;
    document.querySelector('.top-center small').textContent='Đấu luyện với bot';$('pause').title='Tạm dừng';
@@ -41,10 +48,11 @@ function onlinePosition(e,time,delay){
    clock+=dt;if(!started)return;
    const intent=movementIntent(),age=Math.max(0,Math.min(.1,(performance.now()-lastStateAt)/1000));
    remoteClock=onlineClock(remoteClock,(latest?.elapsed||0)+age-remoteDelay,latest?.elapsed||0,dt);
+   localClock=onlineClock(localClock,(latest?.elapsed||0)+age,latest?.elapsed||0,dt);
    for(const e of entities.values()){
     let tx=e.netX+(e.netVX||0)*Math.min(age,.08),ty=e.netY+(e.netVY||0)*Math.min(age,.08);
     if(e!==player){const p=onlinePosition(e,remoteClock,0);if(p){tx=p.x;ty=p.y}}
-    if(e===player&&e.alive&&!paused&&!document.hidden){const base=(188-e.level*2.2)*(e.trailDash?2.9:intent.sprint&&e.xp>0?SPRINT_SPEED:1);tx=e.netX+intent.x*base*Math.min(.1,age+.025);ty=e.netY+intent.y*base*Math.min(.1,age+.025);if(e.swing<=0&&e.clashEffect<=0)e.angle=intent.angle}
+    if(e===player&&e.alive&&!paused&&!document.hidden){const base=(188-e.level*2.2)*(e.trailDash?2.9:intent.sprint&&e.xp>0?SPRINT_SPEED:1);const target=localDisplayTarget(e,intent,base,localClock-(latest?.elapsed||0));tx=target.x;ty=target.y;if(e.swing<=0&&e.clashEffect<=0)e.angle=intent.angle}
     if(!e.alive||paused&&e===player){tx=e.netX;ty=e.netY}
     const inset=radius(e)+8;tx=clamp(tx,inset,WORLD-inset);ty=clamp(ty,inset,WORLD-inset);
     const distance=Math.hypot(tx-e.x,ty-e.y),alpha=distance>250?1:1-Math.exp(-dt*(e===player?35:48));
@@ -91,7 +99,7 @@ function onlinePosition(e,time,delay){
   if(!Array.isArray(message.actors))return;
   const arrival=performance.now(),step=latest?message.elapsed-latest.elapsed:0;
   if(started&&step>0&&step<.3){arrivalJitter=arrivalJitter*.9+Math.abs((arrival-lastStateAt)/1000-step)*.1;remoteDelay=clamp(.06+arrivalJitter*2,.06,.1)}
-  if(step>.3)remoteClock=null;
+  if(step>.3){remoteClock=null;localClock=null;}
   lastStateAt=arrival;
   const before=started?{alive:player.alive,level:player.level,team:player.team}:null;
   const present=new Set(),clashPoints=new Set();
@@ -106,6 +114,7 @@ function onlinePosition(e,time,delay){
    e.trailDash=wasAlive&&data.alive&&data.clashSeq===oldClash&&!data.sprinting&&data.hp>=oldHp&&serverDt>0&&serverDt<.5&&serverDistance<140&&serverDistance/serverDt>(188-data.level*2.2)*2.15;
    const vx=serverDt>0&&serverDt<.3?(data.x-e.netX)/serverDt:0,vy=serverDt>0&&serverDt<.3?(data.y-e.netY)/serverDt:0,maxVelocity=(188-data.level*2.2)*2.9*1.1;
    const discontinuity=isNew||!started||!wasAlive||data.alive!==wasAlive||data.clashSeq!==oldClash||Math.hypot(data.x-x,data.y-y)>250;
+   if(data.id===id&&discontinuity)localClock=null;
    Object.assign(e,data);e.isPlayer=data.id===id;e.netX=data.x;e.netY=data.y;e.netAngle=data.angle;e.angle=discontinuity||data.swing>0?data.angle:oldAngle;
    if(started&&e.isPlayer&&data.skillCooldown>oldSkillCooldown+.5)playWeaponSkillSound(e);
    if(discontinuity||serverDt<=0||serverDt>.3)e.netSamples=[];
@@ -120,7 +129,11 @@ function onlinePosition(e,time,delay){
   if(message.orbs)orbs=message.orbs.map(o=>({x:o[0],y:o[1],value:o[2],phase:o[3],pickupAt:o[4]||0}));
   if(message.chests)chests=message.chests;if(message.drops)drops=message.drops;
   if(message.inventory)player.inventory=message.inventory;
-  latest=message;net.humans=message.humans;net.worldElapsed=message.elapsed;
+  latest=message;net.humans=message.humans;net.bots=message.bots;net.worldElapsed=message.elapsed;
+  if(Array.isArray(message.leaderboard))net.leaderboard=message.leaderboard;
+  if(Array.isArray(message.top10)){net.top10=message.top10.slice(0,10);net.selfRank=Number.isInteger(message.selfRank)&&message.selfRank>0?message.selfRank:null;}
+  if(Array.isArray(message.scoreTop10)){net.scoreTop10=message.scoreTop10.slice(0,10);net.scoreRank=Number.isInteger(message.scoreRank)&&message.scoreRank>0?message.scoreRank:null;}
+  window.refreshStandings?.();
   if(!started){
    started=true;clearTimeout(timeout);window.speedTrails?.clear();particles=[];texts=[];camera={x:player.x,y:player.y};
    $('startScreen').classList.add('hidden');$('modal').classList.add('hidden');paused=false;state='playing';
@@ -139,7 +152,7 @@ function onlinePosition(e,time,delay){
   const automatic=matchmaking==='auto',room=automatic?'':roomInput.value.trim().toUpperCase();if(!automatic&&!/^[A-Z0-9-]{1,18}$/.test(room)){status.textContent='Mã phòng: 1–18 ký tự A–Z, 0–9 hoặc dấu gạch ngang.';return}
   if(!endpoint){status.textContent='Chưa có máy chủ online ở địa chỉ này. Bản itch.io cần cấu hình multiplayer-config.js; chế độ BOT vẫn chơi được.';return}
   start.disabled=true;start.textContent=automatic?'ĐANG GHÉP PHÒNG…':'ĐANG KẾT NỐI…';status.textContent=automatic?'Đang tìm phòng còn chỗ…':'Đang vào phòng '+room+'…';
-  resetBagUI();net.active=true;net.room=room;id=null;started=false;entities.clear();lastSend=0;lastPing=0;lastInputKey='';wireFields=null;arrivalJitter=0;remoteDelay=.06;remoteClock=null;
+  resetBagUI();net.active=true;net.leaderboard=null;net.top10=null;net.selfRank=null;net.scoreTop10=null;net.scoreRank=null;net.room=room;id=null;started=false;entities.clear();lastSend=0;lastPing=0;lastInputKey='';wireFields=null;arrivalJitter=0;remoteDelay=.06;remoteClock=null;localClock=null;
   let ws;try{ws=new WebSocket(endpoint)}catch{net.leave('Không mở được kết nối. Máy chủ online phải dùng WSS khi trang game chạy HTTPS.');return}
   socket=ws;timeout=setTimeout(()=>net.leave('Không kết nối được máy chủ. Hãy thử lại hoặc chọn chế độ BOT.'),9000);
   ws.onopen=()=>{if(socket===ws)ws.send(JSON.stringify({type:'join',rulesVersion:11,transport:'rows-v1',...(automatic?{matchmaking:'auto'}:{room}),name:$('nickname').value.trim()||'Lữ khách'}))};

@@ -1,0 +1,68 @@
+body.online #netBar{top:232px}body.online #killfeed{top:290px}#chestWave{display:block;font-size:8px;color:#d2bd86;margin-bottom:7px;white-space:nowrap}body.touch #chestWave{font-size:7px}#weaponStats,#dragonCount{font-size:8px;color:#c8d1b5;line-height:1.7}#dragonCount{color:#ebbd78;margin-bottom:5px}#weaponName{margin-bottom:2px}#lootActions{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);width:360px;padding:10px 12px;border-radius:3px}#pickupHint{font-size:9px;margin-bottom:8px;min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#lootActions>div:last-child{display:flex;gap:8px}#lootActions button{flex:1;min-height:42px;padding:7px 5px;background:#2c4232;border:1px solid #d6c58b88;border-radius:3px;color:#f1dab0;font-size:10px;touch-action:manipulation}#lootActions button:disabled{opacity:.45;cursor:default}#lootActions button:not(:disabled):hover{background:#4c5c37}#campsButton{top:194px}#killfeed{top:237px}.player-info{min-width:0}#weaponName{overflow-wrap:anywhere}body.touch #lootActions{bottom:150px}@media(max-width:1000px){#lootActions{width:300px}}@media(max-width:650px){body.online #netBar{top:217px}body.online #killfeed{top:268px}body.online #capturePanel{top:275px}#campsButton{top:180px}#killfeed{top:222px}#capturePanel{top:250px}#lootActions{width:calc(100% - 24px);bottom:145px}body.touch #lootActions{width:132px;left:auto;right:12px;bottom:235px;transform:none;padding:8px}body.touch #lootActions>div:last-child{flex-direction:column;gap:7px}body.touch #lootActions button{min-height:44px;font-size:9px}body.touch #pickupHint{font-size:8px}#dragonCount{font-size:7px}.announcement span{max-width:92vw;white-space:normal;display:block}}@media(max-height:550px) and (min-width:651px){#lootActions,body.touch #lootActions{bottom:145px;width:250px}#lootActions button{min-height:36px}#campsButton{top:185px}#killfeed{top:220px}}
+#inventoryPanel{position:fixed;z-index:6;right:24px;top:200px;width:360px;max-height:calc(100dvh - 235px);padding:16px;display:flex;flex-direction:column;border-color:#e3bc7066;border-radius:6px;pointer-events:auto}#inventoryPanel header{display:flex;align-items:center;justify-content:space-between;gap:10px}#inventoryPanel h2{font:700 13px "Be Vietnam Pro",sans-serif;color:#ebcf96;margin:0}#bagClose{flex:none;width:44px;height:44px;background:#344839;border:1px solid #b9b08355;color:#fff0c9;border-radius:4px;font-size:24px;touch-action:manipulation}#bagCamp,#bagStatus{font-size:10px;line-height:1.65;color:#b9c8ad;margin:8px 0}#bagEquipped{font-size:11px;line-height:1.6;padding:9px;background:#12231d88;margin-bottom:10px;border-radius:4px}#bagItems{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:auto;overscroll-behavior:contain;min-height:44px;padding:2px;touch-action:pan-y}.bag-item{min-height:85px;padding:10px;text-align:left;background:#23382c;border:1px solid var(--item-color);border-radius:4px;color:var(--item-color);touch-action:manipulation}.bag-item-art{display:block;width:100%;height:28px;margin-bottom:5px}.bag-item b,.bag-item span,.bag-item small{display:block;line-height:1.6}.bag-item b{font-size:11px}.bag-item span{font-size:9px;color:#eee3c7}.bag-item small{font-size:8px;margin-top:5px}.bag-item:hover,.bag-item:focus-visible{background:#3c4e35;outline:2px solid #fff2c9;outline-offset:1px}.bag-empty{grid-column:1/-1;font-size:12px;line-height:1.8;color:#d0c9ae;margin:8px 0}#bagStatus{margin-bottom:0;font-size:9px}@media(max-width:650px){#inventoryPanel{left:12px;right:12px;top:84px;width:auto;max-height:calc(100dvh - 340px);padding:12px}#bagCamp{font-size:9px}#inventoryPanel h2{font-size:12px}}@media(max-height:550px){#inventoryPanel{top:65px;max-height:calc(100dvh - 150px)}}
+/* Focused battle HUD. Secondary information lives in the pause menu. */
+.compact-ui:not(.in-match) #hud{display:none}
+.compact-ui .leaderboard,.compact-ui .top-center,.compact-ui .bottom-left,.compact-ui #netBar,.compact-ui #campsButton,.compact-ui #killfeed,.compact-ui #weaponStats,.compact-ui #playerName,.compact-ui #evolution,.compact-ui #chestWave,.compact-ui #pickupHint,.compact-ui .tools #sound,.compact-ui .tools #help{display:none!important}
+.compact-ui .player-panel{left:16px;top:16px;width:244px!important;padding:10px;gap:9px;box-shadow:none}
+.compact-ui .rank-seal{width:30px;height:36px;min-width:30px;font-size:19px;align-self:center}
+.compact-ui .player-panel h1{font-size:16px;margin:3px 0 4px}
+.compact-ui .player-panel .eyebrow{font-size:9px;letter-spacing:.4px;line-height:1.4}
+.compact-ui .eyebrow #faction{display:block;float:none;font-size:8px;letter-spacing:.4px}
+.compact-ui #weaponName{font-size:9px;line-height:1.4;margin-bottom:6px}
+.compact-ui .mini{justify-content:flex-end;font-size:9px;margin-top:4px}
+.compact-ui #dragonCount{font-size:9px;line-height:1.4;margin:0 0 5px}
+.compact-ui .tools{right:16px;top:16px}
+.compact-ui .tools #pause{width:44px;height:44px;font-size:17px;letter-spacing:0;padding:0;touch-action:manipulation}
+.compact-ui .progress{bottom:16px;left:50%;transform:translateX(-50%);width:280px;padding:10px 12px;box-shadow:none}
+.compact-ui .progress-title{font-size:9px;letter-spacing:.3px}
+.compact-ui .xp-track{margin-top:7px;height:5px}
+.compact-ui #sprintStatus{display:none}
+.compact-ui #sprintStatus.running{display:block;margin-top:5px;font-size:8px}
+.compact-ui #lootActions{bottom:80px;left:50%;right:auto;transform:translateX(-50%);width:auto;padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none}
+.compact-ui #lootActions>div:last-child{flex-direction:row;gap:8px}
+.compact-ui #lootActions button{min-height:44px;min-width:88px;padding:8px 12px;font-size:10px;background:#23392deb}
+.compact-ui #skillButton:not(.hidden){min-width:140px}
+.compact-ui .minimap{right:16px;top:76px;bottom:auto!important;width:108px;height:108px;padding:6px;box-shadow:none}
+.compact-ui .minimap canvas{width:94px;height:94px;display:block}
+.compact-ui .minimap>span{display:none}
+.minimap.has-rare{border-color:#e7c98199;box-shadow:0 0 12px #d5b86a22}
+#chestRadar{position:absolute;top:calc(100% + 4px);right:-1px;width:calc(100% + 2px);padding:5px 3px;background:#172b24ed;border:1px solid #d8bc7070;border-radius:3px;text-align:center;line-height:1.6;pointer-events:none}
+#chestRadar small{display:block;color:#e8d49e;font-size:7px;letter-spacing:.4px}
+#chestRadar b{display:block;font-size:9px;font-weight:700;white-space:nowrap}
+#chestRadar b:before{content:'';display:inline-block;width:8px;height:8px;margin-right:4px;background:currentColor;vertical-align:middle;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+#chestRadar4{color:#d7a6ff}#chestRadar5{color:#ffda76}
+#chestRadar5:before{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+@media(max-height:480px){body.touch.compact-ui .minimap.has-rare{display:block;right:116px;top:12px;width:74px;height:74px;padding:3px}body.touch.compact-ui .minimap.has-rare canvas{width:66px;height:66px}body.touch.compact-ui #chestRadar{padding:2px}body.touch.compact-ui #chestRadar small{display:none}body.touch.compact-ui #chestRadar b{font-size:8px}}
+.compact-ui #capturePanel{left:16px;top:140px;transform:none;width:244px;padding:8px;box-shadow:none}
+.compact-ui #captureHint{display:none}
+.compact-ui #captureSymbol{width:28px;height:28px;font-size:16px}
+.compact-ui #captureName{font-size:9px}
+.compact-ui #captureTime{font-size:9px}
+.compact-ui .announcement{top:24%;white-space:normal;width:min(85vw,420px);pointer-events:none}
+.compact-ui .announcement small{display:none}
+.compact-ui .announcement strong{font-size:24px;margin:4px}
+.compact-ui .announcement span{font-size:10px;line-height:1.6}
+.weapon-preview-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:320px;margin:12px 0 8px}.weapon-preview-controls button,.try-weapon-skill{min-height:44px;padding:9px 6px;border:1px solid #b8ac7866;background:#253c31;border-radius:4px;color:#e8d5a1;font-size:11px;touch-action:manipulation}.weapon-preview-controls button[aria-pressed=true]{border-color:#ffe0a2;background:#555138;color:#fff0c9}.try-weapon-skill{width:100%;max-width:320px;background:#374c41;border-color:#d0bb7c}.try-weapon-skill:disabled{opacity:.45}.modal-card .preview-skill-note{font-size:10px;line-height:1.6;margin-top:6px}.modal-card .skill-lore{color:#c9d5bc}
+.pause-modal .modal-card{width:min(480px,96vw);padding:28px}
+.pause-menu h2{font-size:25px}
+.pause-menu .pause-notice{font-size:12px;line-height:1.7;margin:10px 0 16px}
+.pause-menu .primary{min-height:48px;align-items:center;margin-top:0;touch-action:manipulation}
+.pause-exit{display:block;width:100%;min-height:46px;margin-top:10px;padding:12px;border:1px solid #d88e7477;border-radius:3px;background:#623c3188;color:#ffd7bd;font:700 12px 'Be Vietnam Pro',sans-serif;letter-spacing:.5px;touch-action:manipulation}
+.pause-exit:hover{background:#824c3b}
+.pause-menu .pause-exit-note{font-size:10px;line-height:1.6;color:#beaa91;margin:7px 0 18px}
+.pause-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pause-actions button{min-height:44px;padding:10px 6px;background:#2a4032;border:1px solid #c8b87933;border-radius:3px;color:#dfd2ad;font-size:11px;touch-action:manipulation}
+.pause-menu #pauseNetwork,.pause-menu #pauseInviteStatus{font-size:10px;overflow-wrap:anywhere;margin:10px 0}
+.pause-details{border-top:1px solid #d2bc7c33;margin-top:16px;padding-top:12px}
+.pause-details summary{min-height:32px;cursor:pointer;color:#e8cf98;font-size:12px;line-height:1.7}
+.pause-stat{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #d2bc7c15;font-size:11px;line-height:1.6}
+.pause-stat>span{color:#a7b59c;flex:0 0 38%}
+.pause-stat>b{font-weight:500;text-align:right;color:#eae1c7;overflow-wrap:anywhere;min-width:0}
+.pause-menu #pauseRanks p{font-size:11px;margin:8px 0;overflow-wrap:anywhere}
+body.touch.compact-ui .progress{left:12px;bottom:156px;transform:none;width:min(220px,calc(100vw - 128px))!important;padding:10px}
+body.touch.compact-ui #lootActions{left:auto;right:12px;bottom:190px;transform:none;width:92px}
+body.touch.compact-ui #lootActions>div:last-child{flex-direction:column;gap:8px}
+body.touch.compact-ui #lootActions button,body.touch.compact-ui #skillButton:not(.hidden){min-width:0;width:92px;min-height:44px;padding:7px 5px;font-size:9px}
+@media(max-width:650px){.compact-ui .player-panel{top:12px;left:12px;width:min(220px,calc(100vw - 104px))!important}.compact-ui .tools{top:12px;right:12px}.compact-ui .minimap{right:12px;top:70px;width:78px;height:78px;padding:4px}.compact-ui .minimap canvas{width:68px;height:68px}.compact-ui #capturePanel{left:12px;top:140px;width:min(216px,calc(100vw - 104px))}.compact-ui .progress-title,.compact-ui #xpValue{font-size:8px}.compact-ui .progress-title i{margin:0 4px}.pause-modal .modal-card{padding:24px 18px}.pause-menu h2{font-size:22px}}
+@media(max-height:480px){body.touch.compact-ui .minimap{display:none}body.touch.compact-ui .progress{left:158px;bottom:20px;width:160px!important}body.touch.compact-ui .progress-title,body.touch.compact-ui #sprintStatus{display:none}body.touch.compact-ui .xp-track{margin:0}body.touch.compact-ui #lootActions{right:12px;bottom:152px}body.touch.compact-ui #lootActions>div:last-child{gap:6px}.pause-modal .modal-card{max-height:94dvh;padding:20px}.pause-menu .pause-notice{margin:5px 0 10px}.pause-menu .pause-exit-note{margin-bottom:12px}}
+

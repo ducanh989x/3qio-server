@@ -1,9 +1,9 @@
-TAM QUOC - LOAN CHIEN | HTML5 v2.17.0
+TAM QUOC - LOAN CHIEN | HTML5 v2.20.0
 
 CAI DAT TREN ITCH.IO
 1. Tao du an moi: https://itch.io/game/new
 2. Kind of project: HTML / HTML Game. Classification: Games.
-3. Upload tam-quoc-loan-chien-html5-v2.17.0.zip, khong can giai nen.
+3. Upload tam-quoc-loan-chien-html5-v2.20.0.zip, khong can giai nen.
 4. Danh dau This file will be played in the browser neu giao dien co muc nay.
 5. Embed: Click to launch in fullscreen (khuyen nghi).
    Neu dung Embed in page: 1280 x 720, bat Fullscreen button.
@@ -98,3 +98,9 @@ ONLINE v2.15.0 / van protocol10: goi actorRows thuong luong opt-in, giam68% phan
 TUTORIAL v2.16.0: 5 buoc co ban tu hien lan dau o lobby; Bo qua/Da hieu ghi nho tren trinh duyet. Mo lai tu lobby/Huong dan. Theo cam ung/ban phim, Tab/Esc, focus an toan, blocked storage/SDK van choi duoc. SOLO dung khi xem lai, ONLINE van chay va canh bao; khong phat lenh chien dau. Protocol10 khong doi, HTML5 tuong thich backend>=2.14. Chi thay ZIP itch.io da co tutorial; Render phuc vu frontend thi deploy goi moi, mat phong RAM.
 
 MOI NHAT v2.17.0 / protocol11: bat buoc cap nhat CA backend va HTML5 len2.17. Tang moc len Lv10 x1.25, moi moc them0.075 den Lv20 x2, ceil; Lv1-9 giu nguyen. Tong Lv1->20:73315, moc19->20:12180; du tru4060/ngoc rong7 khong doi. Them Dai Chuy/Song kiem/Liem/Tang da lon/Chao chien/Ca man/Ghe go (profile20-26), 27 profile/162 stats, loot6 pham va skill cu; Doi khoi dau thanh Ga cao su le luoi (18 ATK/1.10 ASPD). Do vui khong gan vao Dien Nghia. Song kiem/than/dau vu khi co compound hitbox, moi muc tieu chi1 hit/don. Deploy server truoc, kiem tra version2.17.0/rulesVersion11 roi thay ZIP itch.io. Server<=2.16 bi tu choi. Deploy mat phong RAM.
+
+MOI NHAT v2.18 / protocol11: ONLINE tu bu24 slot,1nguoi+23BOT toi16nguoi+8BOT; rutBOT khong co kill/XP/loot,giu survivor. Nut BXH hien nguoi that theo cap>tongEXP>kills, danh dau Ban,server1Hz; public6field khong vi tri/HP/phe/do/timer. SOLO24BOT khong doi. Server18 cho roster/BXH,HTML5 18 cho giao dien;17 ket noi duoc nhung thieu tinh nang moi. Deploy reset phongRAM.
+
+MOI NHAT v2.19 / protocol11: bo so luong ruong tren HUD, thay bang BXH Top10 duoi minimap gom ca nguoi va BOT. Sap cap>EXP>kills, tagBOT/Ban, hang rieng neu ngoai10. Mobile nho cuon bang hoac bamBXH xem day du. Giu icon ruongLv4/5 va toan bo loot/schedule/HP. Server gui top10+hangrieng1Hz, metadata7field khong vi tri/HP/phe/do/timer. Truong leaderboard cu giu humanonly cho client18; client19 can backend19 de coTop10 dung. Deploy server19 roi HTML5 19, reset phongRAM.
+
+MOI NHAT v2.20 / protocol11: BXH chi ten/tongEXP, khongLV/tagBOT/Ban/phanloai; EXP-primary, scoreTop10+scoreRank3field/1Hz khong HP/position. Client20 can backend20 cho du lieu moi;17-19 van ket noi khong doi luat. Noi suylocal clock giam nhap nho arrival, lead<=100ms,resetteleport/clash/respawn. Cache4orb sprites/grassstone LRU theo viewport, lazyDOM; mau160orb1280x800 warmed mainCanvas3950->584 calls,khong phai FPS toan game. Giu speed/hit/cost/loot/protocol11. Deployserver20 roi HTML5 20,resetRAM. Xem EXP-SMOOTH.md.
