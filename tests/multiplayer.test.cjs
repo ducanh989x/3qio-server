@@ -28,7 +28,7 @@ function waitFor(ws,predicate,ms=5000){
  const previous=[...(ws.inbox||[])].reverse().find(predicate);if(previous)return Promise.resolve(previous);
  return new Promise((resolve,reject)=>{const timeout=setTimeout(()=>{ws.off('message',handler);reject(Error('Message timeout'))},ms);function handler(raw){const message=JSON.parse(raw);if(predicate(message)){clearTimeout(timeout);ws.off('message',handler);resolve(message)}}ws.on('message',handler)});
 }
-async function client(port,room,name){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));ws.on('error',()=>{});await new Promise((resolve,reject)=>{ws.once('open',resolve);ws.once('error',reject)});ws.send(JSON.stringify({type:'join',rulesVersion:7,room,name}));return ws}
+async function client(port,room,name){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));ws.on('error',()=>{});await new Promise((resolve,reject)=>{ws.once('open',resolve);ws.once('error',reject)});ws.send(JSON.stringify({type:'join',rulesVersion:11,room,name}));return ws}
 test('real sockets: shared room, isolated rooms, malicious state ignored, input timeout and cleanup',{timeout:15000},async()=>{
  const app=createServer({port:0,botCount:0});const {port}=await app.listen();const clients=[];
  try{

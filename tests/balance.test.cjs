@@ -19,19 +19,19 @@ test('full waves defer guarantees without touching survivors; one slot prioritiz
  const other=createWorld({botCount:0});other.spawnTreasures(()=>0);other.breakTreasure(other.chests[0],other.addHuman('b','B'),()=>.5);other.updateChestWaves(60,()=>0);assert.equal(other.chests[0].level,1);
  w.updateChestWaves(900,()=>0);w.spawnTreasures(()=>0);w.breakTreasure(w.chests[0],e,()=>.5);w.updateChestWaves(60,()=>0);assert.equal(w.chests[0].level,1);
 });
-test('every XP gate is exactly 50% harder, total to Lv20 = 44745, reserve and seven-ball Lv21 stay unchanged',()=>{
+test('early XP gates unchanged, target Lv10–20 grows from x1.25 to x2; total73315, reserve and seven-ball Lv21 unchanged',()=>{
  const w=createWorld({botCount:0});
- for(let level=1;level<20;level++){const n=level-1,needed=150+60*n+15*n*n,e=w.addHuman('L'+level,'Threshold');e.level=level;e.totalXp=w.startingXP(level);const stats=JSON.stringify(w.weaponStats(e));assert.equal(w.startingXP(level+1)-w.startingXP(level),needed);w.gainXP(e,needed-1);assert.equal(e.level,level);w.gainXP(e,1);assert.equal(e.level,level+1);assert.equal(e.xp,0);assert.equal(JSON.stringify(w.weaponStats(e)),stats)}
- const e=w.addHuman('max','Max');assert.equal(w.startingXP(20),44745);w.gainXP(e,44744);assert.equal(e.level,19);assert.equal(e.xp,6089);w.gainXP(e,1);assert.equal(e.level,20);w.gainXP(e,1000000);assert.equal(e.level,20);assert.equal(e.xp,4060);for(let i=0;i<7;i++)w.collectDragon(e);assert.equal(e.level,21);assert.equal(e.hp,352);
+ for(let level=1;level<20;level++){const n=level-1,target=level+1,base=150+60*n+15*n*n,needed=target<10?base:Math.ceil(base*(50+3*(target-10))/40),e=w.addHuman('L'+level,'Threshold');e.level=level;e.totalXp=w.startingXP(level);const stats=JSON.stringify(w.weaponStats(e));assert.equal(w.startingXP(level+1)-w.startingXP(level),needed);w.gainXP(e,needed-1);assert.equal(e.level,level);w.gainXP(e,1);assert.equal(e.level,level+1);assert.equal(e.xp,0);assert.equal(JSON.stringify(w.weaponStats(e)),stats)}
+ const e=w.addHuman('max','Max');assert.equal(w.startingXP(20),73315);w.gainXP(e,73314);assert.equal(e.level,19);assert.equal(e.xp,12179);w.gainXP(e,1);assert.equal(e.level,20);w.gainXP(e,1000000);assert.equal(e.level,20);assert.equal(e.xp,4060);for(let i=0;i<7;i++)w.collectDragon(e);assert.equal(e.level,21);assert.equal(e.hp,352);
 });
 test('all weapon types grow monotonically by rarity around fixed grip; blade length and width match size without LV-based ATK/ASPD',()=>{
  const sizes=[1,1.08,1.16,1.25,1.36,1.5],w=createWorld({botCount:0}),e=w.addHuman('weapon','Weapon');e.angle=0;
- for(let profile=0;profile<20;profile++)for(const level of [1,20,21]){
+ for(let profile=0;profile<L.names.length;profile++)for(const level of [1,20,21]){
   e.level=level;let previous=0,grip;
   for(let rarity=0;rarity<6;rarity++){
    e.weapon=L.makeWeapon(profile,rarity);const stats=w.weaponStats(e),blade=w.weaponBlade(e,.5),scale=w.radius(e)/(17+level*1.35),length=Math.hypot(blade.b.x-blade.a.x,blade.b.y-blade.a.y);
    assert.equal(stats.size,sizes[rarity]);assert.ok(Math.abs(length-(stats.baseReach-10)*stats.size*scale)<1e-8);assert.ok(length>previous);previous=length;
-   if(!grip)grip=blade.a;assert.deepEqual(blade.a,grip);const width=['axe','glaive','halberd','poleblade'].includes(stats.kind)?6:4;assert.ok(Math.abs(blade.width-width*stats.size*scale)<1e-8);
+   if(!grip)grip=blade.a;assert.deepEqual(blade.a,grip);const width=blade.parts?Math.max(...blade.parts.map(p=>p.width))/(stats.size*scale):['axe','glaive','halberd','poleblade'].includes(stats.kind)?6:4;assert.ok(Math.abs(blade.width-width*stats.size*scale)<1e-8);
    assert.equal(stats.atk,L.stats(L.makeWeapon(profile,rarity)).atk);assert.equal(stats.aspd,L.stats(L.makeWeapon(profile,rarity)).aspd);
   }
  }

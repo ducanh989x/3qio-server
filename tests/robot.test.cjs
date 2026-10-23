@@ -27,7 +27,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));async function until(fn){const 
 test('server owns robot unlock/size and replicates summon to both sockets; forged robot fields do nothing',{timeout:10000},async()=>{
  const app=createServer({port:0,botCount:0}),clients=[];const {port}=await app.listen();
  try{
-  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:7,room:'ROBOT',name:'Pilot '+i}));clients.push(ws)}
+  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:11,room:'ROBOT',name:'Pilot '+i}));clients.push(ws)}
   await until(()=>app.rooms.get('ROBOT')?.world.actors.length===2);const w=app.rooms.get('ROBOT').world,[a,b]=w.actors;
   clients[0].send(JSON.stringify({type:'input',level:21,dragonCount:7,robotSummon:999,scale:999}));await sleep(100);assert.equal(a.level,1);assert.equal(a.dragonCount,0);assert.equal(a.robotSummon,0);
   a.x=1800;b.x=2200;const stats=JSON.stringify(w.weaponStats(a));for(let i=0;i<7;i++)w.collectDragon(a);

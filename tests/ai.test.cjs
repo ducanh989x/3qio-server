@@ -41,8 +41,8 @@ test('loot utility favors dragon progress/upgrades, damaged high chests and publ
  w.drops.splice(0);const [small,high]=w.chests;Object.assign(small,{x:1900,y:1800,alive:true,level:1,hp:36,maxHp:36});Object.assign(high,{x:1900,y:1850,alive:true,level:5,hp:900,maxHp:900});w.botThink(e,w.actors);assert.equal(e.target.chest,small);high.hp=5;w.botThink(e,w.actors);assert.equal(e.target.chest,high);
  small.alive=high.alive=false;const ordinary={x:1850,y:1800,value:2,pickupAt:0},pool={x:2100,y:1800,value:100,pickupAt:.6};w.orbs.push(ordinary,pool);w.botThink(e,w.actors,0);assert.equal(e.target.orb,ordinary);w.botThink(e,w.actors,.7);assert.equal(e.target.orb,pool);
 });
-test('rare gear is still collected privately, brought to a real flag and equipped only there',()=>{
- const {w,e}=setup();Object.assign(e,{x:600,y:350});w.addTreasureDrop({type:'weapon',weapon:w.loot.makeWeapon(19,5)},600,350,0);w.step(.01);assert.equal(e.inventory.length,1);assert.equal(e.weapon.rarity,0);e.aiTime=0;w.botThink(e,w.actors);assert.equal(e.target.camp,true);advance(w,2);assert.ok(w.campAt(e));assert.equal(e.weapon.rarity,5);assert.equal(e.inventory.length,0);
+test('same-rarity rare gear is collected privately and manual bag upgrades still require a real flag',()=>{
+ const {w,e}=setup();Object.assign(e,{x:600,y:350,weapon:w.loot.makeWeapon(1,5)});w.addTreasureDrop({type:'weapon',weapon:w.loot.makeWeapon(19,5)},600,350,0);w.step(.01);assert.equal(e.inventory.length,1);assert.equal(e.weapon.profile,1);e.aiTime=0;w.botThink(e,w.actors);assert.equal(e.target.camp,true);advance(w,2);assert.ok(w.campAt(e));assert.equal(e.weapon.profile,19);assert.equal(e.weapon.rarity,5);assert.equal(e.inventory.length,1);assert.equal(e.inventory[0].profile,1);
 });
 test('pending actions survive perception refreshes; ordinary swings actually damage enemies and break/farm chests',()=>{
  const {w,e}=setup(),h=human(w,1866);w.botThink(e,w.actors,0);const scheduled=e.brain.intent.actionAt;w.botThink(e,w.actors,.2);assert.equal(e.brain.intent.actionAt,scheduled);advance(w,2);assert.ok(h.hp<112);assert.equal(w.weaponStats(e).atk,18);

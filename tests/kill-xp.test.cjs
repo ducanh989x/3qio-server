@@ -30,7 +30,7 @@ test('share uses lifetime XP despite sprint/current XP, zero totals drop nothing
  b.team=a.team='thuc';assert.equal(w.applyWeaponDamage(a,b,9999),false);assert.equal(a.kills,0);b.team='neutral';b.x=b.y=350;assert.equal(w.applyWeaponDamage(a,b,9999),false);assert.equal(a.totalXp,0);
 });
 test('high-level bots have starting XP; collected pools cap current reserve but not lifetime, never grant equipment or unlock Lv21',()=>{
- const bots=createWorld({botCount:24});assert.equal(bots.startingXP(20),44745);for(const e of bots.actors)assert.equal(e.totalXp,bots.startingXP(e.level));
+ const bots=createWorld({botCount:24});assert.equal(bots.startingXP(20),73315);for(const e of bots.actors)assert.equal(e.totalXp,bots.startingXP(e.level));
  const {w,a,b}=setup();w.gainXP(a,100000);w.gainXP(b,100000);a.xp=0;const total=a.totalXp,weapon=JSON.stringify(a.weapon),base=w.killRewardXP(b),dropped=w.killDropXP(b);w.applyWeaponDamage(a,b,9999);
  assert.equal(a.totalXp,total+base);assert.equal(a.xp,base);w.orbs.splice(0,w.orbs.length,...pool(w));takePool(w,a);assert.equal(a.totalXp,total+base+dropped);assert.equal(a.xp,4060);assert.equal(a.level,20);assert.equal(a.dragonCount,0);assert.equal(JSON.stringify(a.weapon),weapon);
  for(let i=0;i<7;i++)w.collectDragon(a);const v=w.addHuman('next','Next');Object.assign(v,{invincible:0,x:2200,y:1800});w.gainXP(v,50000);const total21=a.totalXp,base21=w.killRewardXP(v),drop21=w.killDropXP(v);a.xp=0;w.applyWeaponDamage(a,v,9999);w.orbs.splice(0,w.orbs.length,...pool(w));takePool(w,a);assert.equal(a.level,21);assert.equal(a.hp,352);assert.equal(a.totalXp,total21+base21+drop21);assert.equal(a.xp,4060);assert.equal(JSON.stringify(a.weapon),weapon);
@@ -39,7 +39,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));async function until(fn){const 
 test('real sockets: server-owned ground pool visible to both clients, no direct 20% award or forged claims',{timeout:10000},async()=>{
  const app=createServer({port:0,botCount:0}),clients=[];const {port}=await app.listen();
  try{
-  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:7,room:'GROUND-XP',name:'Duel '+i}));clients.push(ws)}
+  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:11,room:'GROUND-XP',name:'Duel '+i}));clients.push(ws)}
   await until(()=>app.rooms.get('GROUND-XP')?.world.actors.length===2);const w=app.rooms.get('GROUND-XP').world,[a,b]=w.actors;w.orbs.splice(0);
   clients[0].send(JSON.stringify({type:'input',totalXp:999999999,bountyXp:999999999,droppedXp:999999999}));await sleep(100);assert.ok(a.totalXp<1000);assert.equal(a.bountyXp,0);
   Object.assign(a,{x:1800,y:1800,invincible:0});Object.assign(b,{x:1860,y:1800,invincible:0});w.gainXP(b,5000);b.hp=1;const base=w.killRewardXP(b),before=a.totalXp;

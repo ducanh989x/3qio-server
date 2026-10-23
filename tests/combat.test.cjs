@@ -4,16 +4,16 @@ const {createWorld}=require('../server/world.cjs'),{createServer}=require('../se
 const L=require('../loot.js');
 function pair(distance=60){const w=createWorld({botCount:0});w.orbs.splice(0);const a=w.addHuman('a','A'),b=w.addHuman('b','B');Object.assign(a,{x:1800,y:1800,invincible:0});Object.assign(b,{x:1800+distance,y:1800,invincible:0});a.input.angle=0;b.input.angle=Math.PI;return {w,a,b}}
 function advance(w,t,hz=120){for(let i=0;i<Math.ceil(t*hz);i++)w.step(1/hz)}
-test('120 weapon variants: bounded ATK/DPS, rarity progression, no normal or skill one-shot at Lv1',()=>{
+test('162 weapon variants: bounded ATK/DPS, rarity progression, no normal or skill one-shot at Lv1',()=>{
  let maxAtk=0,maxDps=0,maxSkill=0;
- for(let p=0;p<20;p++)for(let r=0;r<6;r++){
+ for(let p=0;p<L.names.length;p++)for(let r=0;r<6;r++){
   const s=L.stats(L.makeWeapon(p,r));maxAtk=Math.max(maxAtk,s.atk);maxDps=Math.max(maxDps,s.atk*s.aspd);maxSkill=Math.max(maxSkill,Math.round(s.atk*(r===5?1.35:1.2)));
   assert.ok(s.atk<=53);assert.ok(s.atk*s.aspd<60);assert.ok(Math.round(s.atk*(r===5?1.35:1.2))<112);
   if(r){const prev=L.stats(L.makeWeapon(p,r-1));assert.ok(s.atk>=prev.atk);assert.ok(s.atk*s.aspd>prev.atk*prev.aspd)}
  }
  assert.equal(maxAtk,53);assert.ok(maxDps<60);assert.equal(maxSkill,72);
  assert.equal(Math.ceil(112/maxAtk),3);assert.equal(Math.ceil(340/maxAtk),7);
- for(let p=1;p<20;p++){const s=L.stats(L.makeWeapon(p,0));assert.ok(s.atk*s.aspd>=20&&s.atk*s.aspd<=26)}
+ for(let p=1;p<L.names.length;p++){const s=L.stats(L.makeWeapon(p,0));assert.ok(s.atk*s.aspd>=20&&s.atk*s.aspd<=26)}
 });
 test('simultaneous physical contacts cancel both swings without damage, with symmetric recoil, independent of actor order/tick rate',()=>{
  for(const hz of [30,60,120])for(const reversed of [false,true])for(const distance of [60,100]){
@@ -52,7 +52,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));async function until(fn){const 
 test('real sockets replicate server-owned clashes and ignore client-reported damage/block outcomes',{timeout:10000},async()=>{
  const app=createServer({port:0,botCount:0}),clients=[];const {port}=await app.listen();
  try{
-  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:7,room:'CLASH',name:'Duel '+i}));clients.push(ws)}
+  for(let i=0;i<2;i++){const ws=new WebSocket('ws://localhost:'+port+'/ws');ws.inbox=[];ws.on('message',raw=>ws.inbox.push(JSON.parse(raw)));await new Promise(r=>ws.once('open',r));ws.send(JSON.stringify({type:'join',rulesVersion:11,room:'CLASH',name:'Duel '+i}));clients.push(ws)}
   await until(()=>app.rooms.get('CLASH')?.world.actors.length===2);const w=app.rooms.get('CLASH').world,[a,b]=w.actors;w.orbs.splice(0);Object.assign(a,{x:1800,y:1800,invincible:0});Object.assign(b,{x:1860,y:1800,invincible:0});
   clients[0].send(JSON.stringify({type:'input',attack:true,angle:0}));clients[1].send(JSON.stringify({type:'input',attack:true,angle:Math.PI}));await until(()=>a.clashSeq===1&&b.clashSeq===1);
   for(const ws of clients)ws.send(JSON.stringify({type:'input',attack:false,clashSeq:999,clashEffect:99,invincible:99,hp:999999,damage:999999,parry:true}));

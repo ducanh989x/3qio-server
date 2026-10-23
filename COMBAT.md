@@ -1,4 +1,8 @@
-# Combat v2.4.0
+# Combat v2.14.0
+
+v2.14: ba skill hỗ trợ không phát sinh swing/hitSet/damage. Hồi xuân cap25% maxHP tự thân. Hộ thể trừ shield trước/HP sau, vẫn knockback; chỉ hit hợp lệ tiêu shield/reveal Tàng hình. Tàng hình không thay canAttack/hitbox: vẫn có thể bị đánh trúng, đánh kể cả hụt sẽ lộ. Cờ/đồng đội/invincible vẫn chặn damage, không tiêu shield/reveal từ hit vô hiệu. CD riêng chống spam/đổi đồ; cleanup chết/respawn/robot. Protocol10, SKILLS.md.
+
+v2.13:8 kiểu kích hoạt,7 quỹ đạo attack và1 buff Liên kích. `strikePose` dùng chung cho hit/clash/render, duration0,32–0,44s; Song hồi hai nhịp vẫn1 hit/mục tiêu. Giữ cap53/72, cooldown12/10, đồng đội/cờ,90ms/32recoil, không đạn/choáng/bất tử/dịch chuyển. Attack thường không ngắt skill chậm. Bị chặn xóa FX tấn công nhưng không hoàn cooldown. Chi tiết mới thay mô tả3 skill cũ bên dưới: xem SKILLS.md. Protocol9 yêu cầu cả game/server2.13.
 
 v2.4.0: kích thước trang bị theo phẩm trắng/lục/lam/tím/cam/đỏ là ×1/1,08/1,16/1,25/1,36/1,5. Phóng hai trục quanh điểm cầm (10,7), tay không bị phóng. `reach = 10 + (baseReach − 10) × size`, độ dày blade cũng nhân size; tiếp tục nhân bodyScale. Hình vẽ, đánh thường, skill, hit rương và chặn cùng một hình học. Không tăng thêm ATK/ASPD từ kích thước. · Cân bằng ATK và chặn vũ khí
 

@@ -18,7 +18,7 @@ function botCamp(e,threat=null){
 function botThink(e,actors,now=elapsed){
  const brain=e.brain??=createBotBrain(e),p=brain.profile,seen=new Map(),visible=[],foes=[];let friends=0;
  for(const other of actors){
-  if(other===e||!other.alive)continue;const d=dist(e,other);if(d>BotRules.vision)continue;
+  if(other===e||!other.alive||!canObserveActor(e,other))continue;const d=dist(e,other);if(d>BotRules.vision)continue;
   const previous=brain.seen.get(other),sample={ref:other,x:other.x,y:other.y,d,radius:radius(other),reach:reach(other),hp:other.hp,maxHp:other.maxHp,invincible:other.invincible||0,swing:other.swing||0,angle:other.angle,power:botPower(other),vx:0,vy:0,time:now};
   if(previous&&now>previous.time){const time=now-previous.time;sample.vx=clamp((sample.x-previous.x)/time,-300,300);sample.vy=clamp((sample.y-previous.y)/time,-300,300)}
   seen.set(other,sample);visible.push(sample);
@@ -75,17 +75,19 @@ function botThink(e,actors,now=elapsed){
   const w=weaponStats(e),normal=reach(e)+enemy.radius;
   intent.range=normal;intent.facingX=enemy.x+clamp(enemy.vx*p.reaction*.45,-40,40);intent.facingY=enemy.y+clamp(enemy.vy*p.reaction*.45,-40,40);
   intent.attack=enemy.d<normal+5;intent.dodge=enemy.swing>0&&enemy.d<enemy.reach+radius(e)+70&&Math.abs(angleDiff(Math.atan2(e.y-enemy.y,e.x-enemy.x),enemy.angle))<1.4;
-  if(w.skill&&e.skillCooldown<=0){
-   intent.skill=w.skill==='pierce'?enemy.d<reach(e)*2+enemy.radius&&enemy.d>normal*.7:w.skill==='whirl'?enemy.d<normal*.95||pressure.length>1:enemy.d<normal*1.4&&e.skillBuff<=0;
+  if(w.skill&&!w.skillUtility&&e.skillCooldown<=0){
+   const thrust=['pierce','lunge','serpent'].includes(w.skill),sweep=['whirl','crescent','cross'].includes(w.skill);
+   intent.skill=thrust?enemy.d<reach(e)*(w.skill==='lunge'?1.75:1.9)+enemy.radius&&enemy.d>normal*.65:sweep?enemy.d<normal*1.05||pressure.length>1:w.skill==='cleave'?enemy.d<normal*1.1:enemy.d<normal*1.4&&e.skillBuff<=0;
   }
- }else if(goal.chest){intent.range=reach(e)+26;intent.attack=dist(e,goal)<intent.range;intent.skill=!!weaponStats(e).skill&&goal.chest.hp>weaponStats(e).atk*2&&foes.every(o=>o.d>300)}
+ }else if(goal.chest){intent.range=reach(e)+26;intent.attack=dist(e,goal)<intent.range;intent.skill=!!weaponStats(e).skill&&!weaponStats(e).skillUtility&&goal.chest.hp>weaponStats(e).atk*2&&foes.every(o=>o.d>300)}
  if(goal.flee&&nearest){intent.facingX=nearest.x;intent.facingY=nearest.y;intent.dodge=nearest.swing>0&&nearest.d<nearest.reach+radius(e)+90}
+ const support=weaponStats(e);intent.utility=support.skillUtility&&e.skillCooldown<=0&&(support.skill==='heal'?ratio<.7:support.skill==='stealth'?goal.flee&&!!nearest:pressure.length>0&&ratio<.85);
  brain.intent=intent;brain.fired=false;return goal;
 }
 function updateBot(e,dt,actors,now=elapsed){
  if(!e.alive||e.isPlayer||e.networkHuman||dt<=0)return;
  const brain=e.brain??=createBotBrain(e);e.aiTime-=dt;
- if(!brain.intent||e.aiTime<=0||e.target?.enemy&&(!e.target.enemy.alive||!canAttack(e,e.target.enemy)))botThink(e,actors,now);
+ if(!brain.intent||e.aiTime<=0||e.target?.enemy&&(!e.target.enemy.alive||!canAttack(e,e.target.enemy)||!canObserveActor(e,e.target.enemy)))botThink(e,actors,now);
  const intent=brain.intent,p=brain.profile;if(!intent)return;
  const dx=intent.x-e.x,dy=intent.y-e.y,d=Math.hypot(dx,dy),enemy=intent.enemy;
  let mx=0,my=0;
@@ -109,6 +111,7 @@ function updateBot(e,dt,actors,now=elapsed){
  }else brain.stuck=0;
  const facing=Math.atan2((intent.facingY??intent.y)-e.y,(intent.facingX??intent.x)-e.x);e.angle+=clamp(angleDiff(facing,e.angle),-p.turnRate*dt,p.turnRate*dt);
  if(now>=intent.actionAt&&!campAt(e)){
+  if(intent.utility&&!brain.fired&&useWeaponSkill(e))brain.fired=true;
   if(intent.dodge&&now>=brain.nextDash&&e.stamina>=BotRules.dashReserve&&e.dash<=0){e.stamina-=35;e.dash=.23;brain.nextDash=now+rand(2.4,3.8)}
   if(intent.flee&&intent.threat&&e.xp>=20&&now>=brain.nextSprint){brain.sprintUntil=now+1.1;brain.nextSprint=now+4.5}
   const valid=enemy?enemy.ref.alive&&canAttack(e,enemy.ref)&&enemy.ref.invincible<=0:intent.chest?.alive;

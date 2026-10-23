@@ -40,47 +40,49 @@ test('global waves refill only broken slots, preserve damaged survivors, cap 15 
  for(const chest of w.chests)for(const z of [{x:350,y:350},{x:3250,y:350},{x:350,y:3250},{x:3250,y:3250}])assert.ok(Math.hypot(chest.x-z.x,chest.y-z.y)>175);
  const fresh=setup();assert.equal(fresh.w.chests.length,15);assert.ok(fresh.w.chests.every(c=>c.level===1));
 });
-test('auto collects dragons, upgrades only higher normal rarity and stashes orange/red without equipping',()=>{
+test('auto collects dragons, upgrades every higher rarity including orange/red and stashes displaced rares',()=>{
  const {w,e}=setup();w.addTreasureDrop({type:'dragon'},e.x,e.y,0);w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(2,1)},e.x+100,e.y,.35);
  w.step(.1);assert.equal(e.weapon.profile,0);assert.equal(e.dragonCount,1);
  const d=w.drops.find(d=>d.type==='weapon');d.x=e.x+w.radius(e)+19;w.step(.1);assert.equal(e.weapon.profile,0);d.x=e.x+w.radius(e)+20.1;advance(w,.2);assert.equal(e.weapon.profile,0);
  d.x=e.x+w.radius(e)+19;w.step(.01);assert.equal(e.weapon.profile,2);
- for(const rarity of [4,5])w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,rarity)},e.x,e.y,0);
- w.step(.01);assert.equal(e.weapon.rarity,1);assert.equal(e.inventory.length,2);assert.ok(e.inventory.every(item=>item.rarity>=4));
  for(const rarity of [2,3]){w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(3,rarity)},e.x,e.y,0);w.step(.01);assert.equal(e.weapon.rarity,rarity)}
  for(const rarity of [0,1,2,3])w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(18,rarity)},e.x,e.y,0);
  w.step(.01);assert.equal(e.weapon.profile,3);assert.equal(e.weapon.rarity,3);assert.equal(w.drops.filter(d=>d.weapon?.profile===18).length,4);
+ for(const rarity of [4,5]){w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,rarity)},e.x,e.y,0);w.step(.01);assert.equal(e.weapon.rarity,rarity)}
+ assert.equal(e.inventory.length,1);assert.equal(e.inventory[0].rarity,4);
  const other=setup();other.w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(3,0)},other.e.x,other.e.y,.35);other.w.step(.1);assert.equal(other.e.weapon.profile,0);advance(other.w,.3);assert.equal(other.e.weapon.profile,3);
  const dead=setup();dead.e.alive=false;dead.w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(4,0)},dead.e.x,dead.e.y,0);advance(dead.w,.2);assert.equal(dead.e.weapon.profile,0);
 });
 test('full bag leaves rare drops intact while normal upgrades and seven auto dragon pickups still work',()=>{
- const {w,e}=setup();for(let i=0;i<L.bagSize;i++)w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(1,4)},e.x,e.y,0);w.step(.01);
+ const {w,e}=setup();e.weapon=L.makeWeapon(19,5);for(let i=0;i<L.bagSize;i++)w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(1,4)},e.x,e.y,0);w.step(.01);
  assert.equal(e.inventory.length,24);assert.equal(new Set(Array.from(e.inventory,item=>item.id)).size,24);
  w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},e.x,e.y,0);for(let i=0;i<8;i++)w.addTreasureDrop({type:'dragon'},e.x,e.y,0);
  w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(2,2)},e.x,e.y,0);w.step(.01);
- assert.equal(e.inventory.length,24);assert.equal(e.weapon.rarity,2);assert.equal(e.dragonCount,7);assert.equal(e.level,21);assert.equal(w.drops.filter(d=>d.type==='dragon').length,1);assert.equal(w.drops.filter(d=>d.weapon?.rarity===5).length,1);
- e.x=350;e.y=350;assert.equal(w.equipFromBag(e,e.inventory[0].id),true);assert.equal(e.inventory.length,23);
+ assert.equal(e.inventory.length,24);assert.equal(e.weapon.rarity,5);assert.equal(e.dragonCount,7);assert.equal(e.level,21);assert.equal(w.drops.filter(d=>d.type==='dragon').length,1);assert.equal(w.drops.filter(d=>d.weapon?.rarity===5).length,1);
+ e.x=350;e.y=350;assert.equal(w.equipFromBag(e,e.inventory[0].id),true);assert.equal(e.inventory.length,24);
+ // Make room via a fixture; manual rare swaps themselves never consume items.
+ e.inventory.pop();
  const rare=w.drops.find(d=>d.weapon?.rarity===5);rare.x=e.x;rare.y=e.y;w.step(.01);assert.equal(e.inventory.length,24);assert.equal(w.drops.includes(rare),false);
 });
 test('competing auto pickups are atomic and a full bag does not block another player',()=>{
  const {w,e}=setup(),other=w.addHuman('b','B');Object.assign(other,{x:1810,y:1800});w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},1800,1800,0);w.step(.01);
- assert.equal(e.inventory.length+other.inventory.length,1);assert.equal(w.drops.length,0);
- e.inventory=Array.from({length:24},(_,i)=>({id:'fixture-'+i,profile:1,rarity:4}));other.inventory=[];
+ assert.equal([e,other].filter(a=>a.weapon.rarity===5).length,1);assert.equal(e.inventory.length+other.inventory.length,0);assert.equal(w.drops.length,0);
+ e.inventory=Array.from({length:24},(_,i)=>({id:'fixture-'+i,profile:1,rarity:4}));other.inventory=[];other.weapon=L.makeWeapon(19,5);
  w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},e.x,e.y,0);w.step(.01);assert.equal(e.inventory.length,24);assert.equal(other.inventory.length,1);assert.equal(w.drops.length,0);
 });
 test('bots seek ground upgrades and return to a flag to equip rare bag weapons',()=>{
  const w=createWorld({botCount:1}),e=w.actors[0];w.orbs.splice(0);Object.assign(e,{x:1800,y:1800,enlistTarget:null,aiTime:0,target:null,level:1});
  w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(2,1)},1950,1800,0);w.step(.01);assert.equal(e.target.loot,true);advance(w,1);assert.equal(e.weapon.rarity,1);
- Object.assign(e,{x:600,y:350,aiTime:0,target:null});w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},600,350,0);w.step(.01);assert.equal(e.inventory.length,1);advance(w,2);
- assert.equal(e.weapon.rarity,5);assert.equal(e.inventory.length,0);
+ Object.assign(e,{x:600,y:350,aiTime:0,target:null,weapon:L.makeWeapon(1,5)});w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},600,350,0);w.step(.01);assert.equal(e.inventory.length,1);advance(w,2);
+ assert.equal(e.weapon.rarity,5);assert.equal(e.weapon.profile,19);assert.equal(e.inventory.length,1);assert.equal(e.inventory[0].profile,1);
 });
 test('every weapon/rarity has finite intrinsic stats; only orange/red has exactly one skill',()=>{
- for(let profile=0;profile<20;profile++)for(let rarity=0;rarity<6;rarity++){
+ for(let profile=0;profile<L.names.length;profile++)for(let rarity=0;rarity<6;rarity++){
   const s=L.stats(L.makeWeapon(profile,rarity));assert.ok(s.atk>0&&s.aspd>0&&s.reach>0);assert.equal(!!s.skill,rarity>=4);if(rarity>=4)assert.ok(s.skillName&&s.skillCooldown>0);
  }
 });
-test('default log, XP levels preserve equipment and exact ATK/ASPD; XP cannot unlock 21',()=>{
- const {w,e}=setup(),start=w.weaponStats(e);assert.equal(start.name,'Khúc gỗ');assert.equal(start.atk,18);assert.equal(start.rarity,0);
+test('default rubber chicken, XP levels preserve equipment and exact ATK/ASPD; XP cannot unlock 21',()=>{
+ const {w,e}=setup(),start=w.weaponStats(e);assert.equal(start.name,'Gà cao su lè lưỡi');assert.equal(start.atk,18);assert.equal(start.rarity,0);
  e.weapon=L.makeWeapon(17,4);const initial=JSON.stringify(w.weaponStats(e));
  w.gainXP(e,1000000);assert.equal(e.level,20);assert.equal(e.maxHp,340);assert.equal(e.hp,340);assert.equal(e.xp,4060);assert.equal(JSON.stringify(w.weaponStats(e)),initial);
  for(let i=0;i<7;i++)assert.equal(w.collectDragon(e),true);assert.equal(e.level,21);assert.equal(e.dragonCount,7);assert.equal(e.hp,352);assert.equal(JSON.stringify(w.weaponStats(e)),initial);assert.equal(w.collectDragon(e),false);
@@ -104,7 +106,7 @@ test('chests take one hit per swing; break once, drop guaranteed weapon and bonu
 });
 test('camp-only bag equip rejects forged/stale IDs and dead actors; swaps preserve cooldowns and rare items',()=>{
  const {w,e}=setup();w.addTreasureDrop({type:'weapon',weapon:L.makeWeapon(19,5)},e.x+150,e.y,0);assert.equal(w.pickUp(e),false);
- w.drops[0].x=e.x;e.alive=false;assert.equal(w.pickUp(e),false);e.alive=true;assert.equal(w.pickUp(e),true);assert.equal(e.weapon.profile,0);assert.equal(e.inventory.length,1);
+ w.drops[0].x=e.x;e.weapon=L.makeWeapon(1,5);e.alive=false;assert.equal(w.pickUp(e),false);e.alive=true;assert.equal(w.pickUp(e),true);assert.equal(e.weapon.profile,1);assert.equal(e.inventory.length,1);
  const id=e.inventory[0].id;assert.equal(w.equipFromBag(e,id),false);assert.equal(w.equipFromBag(e,{profile:19,rarity:5}),false);
  Object.assign(e,{x:350,y:350,alive:false});assert.equal(w.equipFromBag(e,id),false);e.alive=true;
  e.weapon=L.makeWeapon(2,2);e.skillCooldown=8;e.cooldown=2;e.skillBuff=2;e.swing=.2;

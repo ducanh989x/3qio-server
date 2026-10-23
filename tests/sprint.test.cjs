@@ -29,7 +29,7 @@ test('real server owns sprint cost/speed and clears stale held input',{timeout:8
  try{
   ws=new WebSocket('ws://localhost:'+port+'/ws');const inbox=[];ws.on('message',raw=>inbox.push(JSON.parse(raw)));ws.on('error',()=>{});
   await new Promise((resolve,reject)=>{ws.once('open',resolve);ws.once('error',reject)});
-  ws.send(JSON.stringify({type:'join',rulesVersion:7,room:'SPRINT',name:'Runner'}));
+  ws.send(JSON.stringify({type:'join',rulesVersion:11,room:'SPRINT',name:'Runner'}));
   const until=async fn=>{const start=Date.now();while(!fn()){if(Date.now()-start>4000)throw Error('Sprint network timeout');await new Promise(r=>setTimeout(r,10))}};
   await until(()=>inbox.some(m=>m.type==='welcome'));
   const room=app.rooms.get('SPRINT'),e=room.world.actors.find(e=>e.networkHuman);Object.assign(e,{x:500,y:1800,xp:20});room.world.orbs.splice(0);clear=setInterval(()=>room.world.orbs.splice(0),10);

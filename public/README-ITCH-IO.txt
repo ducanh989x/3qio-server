@@ -1,9 +1,9 @@
-TAM QUOC - LOAN CHIEN | HTML5 v2.9.0
+TAM QUOC - LOAN CHIEN | HTML5 v2.17.0
 
 CAI DAT TREN ITCH.IO
 1. Tao du an moi: https://itch.io/game/new
 2. Kind of project: HTML / HTML Game. Classification: Games.
-3. Upload tam-quoc-loan-chien-html5-v2.9.0.zip, khong can giai nen.
+3. Upload tam-quoc-loan-chien-html5-v2.17.0.zip, khong can giai nen.
 4. Danh dau This file will be played in the browser neu giao dien co muc nay.
 5. Embed: Click to launch in fullscreen (khuyen nghi).
    Neu dung Embed in page: 1280 x 720, bat Fullscreen button.
@@ -82,3 +82,19 @@ BOT v2.7.0: ai.js shared SOLO/server, phan ung co tre va tinh cach, biet chon tr
 CHIBI v2.8.0: 20 tao hinh dau to/mat bieu cam, mu/rau/phu kien rieng; nhan dien Quan Vu/Truong Phi/Lu Bo/Cam Ninh/Hoang Trung/Ma Sieu/Trieu Van ro hon. Chibi.js chi ve, khong doi chi so/hitbox/tay cam/vu khi/AI/XP/ruong/quoc gia, robot giu nguyen. Can cap nhat HTML5/client de thay hinh moi, rulesVersion van 7. Xem CHIBI.md trong goi server/website.
 
 MUOT v2.9.0: shared input SOLO/ONLINE, tha WASD dung, chuot ngam tu vi tri nhan vat, joystick deadzone va tung ngon rieng. Camera doc lap FPS, chia khung cham; cache stats/trang tri/HUD/minimap va gioi han DPR. ONLINE ngoai suy hinh anh co gioi han, sua theo server, khong tu chi XP/HP hay xac nhan hit. Khong doi toc do/chi phi/luat gameplay, protocol7. Cap nhat HTML5 de nhan dieu khien moi; goi server/website dong bo nguon. Xem PERFORMANCE.md trong goi server/website; so do thu khong cam ket FPS moi may.
+
+HUD v2.10.0: Pause co THOAT TRAN cho SOLO/ONLINE, ve lobby sach va xoa tien do phien. ONLINE dong socket that, khong reset phong cua nguoi khac. HUD gon, thong tin phu/top5/huong dan/vo tuong/quoc gia/am thanh/room-moi ban trong menu; nut skill chi hien khi co skill va ngoc chi hien khi da nhat. Gameplay/protocol7 khong doi. Client moi tuong thich Render v2.9.0, chi can thay ZIP HTML5 itch.io; khong can restart backend de nhan UI. Xem HUD.md trong goi server/website.
+
+LUAT MOI NHAT v2.11.0 (rulesVersion8): MOI pham cao hon ke ca Cam/Do TU TRANG BI. Cam/Do cu hoac ngang/thap hon vao tui24, khong nhan doi. Day tui van nang do thuong len Cam/Do; neu khong cat duoc Cam/Do cu thi de mon moi tren dat. Doi tu tui van chi tai co; giu cooldown. BAT BUOC cap nhat CA Render VA HTML5 len v2.11.0. Server truoc, API version2.11.0/rulesVersion8, roi upload ZIP itch.io. Khong con tuong thich backendv2.9/v2.10. Deploy mat phong RAM hien tai.
+
+RADAR v2.12.0: Ruong Lv4 hinh thoi tim, Lv5 ngoi sao vang, so cap va vong sang nhe tren minimap toan ban do. Hien so ruong hiem con song; co cot sang/hao quang tren chien truong. Pha ruong thi an dau, hoi sinh thi danh dau vi tri moi. Touch ngang chi hien radar khi co ruong hiem, tranh nut bam; reduced-motion tat nhip dong. Chi hien thi, khong doi loot/HP/XP/nhip sinh hay protocol8. Client2.12 tuong thich server2.11; neu da server2.11 thi chi thay HTML5. Backend2.9/2.10 van can cap nhat vi luat nhat do cua2.11.
+
+VU KHI & SKILL v2.13.0 (protocol9): 8 kieu kich hoat, moi mau Cam/Do1 skill Q/touch: Xuyen tran, Pha phong, Xa anh, Bo son, Nguyet tram, Song hoi, Hoanh tao, Lien kich. 7 tan cong co quy dao/tam/nhip khac nhau, moi muc tieu toi da1 hit, cap72; Lien kich van buff ASPD1.3x3s. 20 tao hinh/finish mau rieng, thumbnail trong tui, danh muc co XEM SKILL va Trang/Cam/Do, demo khong doi actor that. FX gon, touch it tia, khong dan/AoE vo hinh/choang/bat tu/di chuyen. BAT BUOC cap nhat CA Render VA HTML5 len2.13: deploy server truoc, API version2.13.0/rulesVersion9, roi upload itch.io. Server<=2.12 khong tuong thich. Deploy mat phong RAM. Xem SKILLS.md.
+
+MOI NHAT v2.14.0 / protocol10: them Tang hinh (doan dao/Khăn Vang, Cam4s/Do5s), Hoi xuan (dai dao Quan Binh, hoi25% HP, day mau khong mat luot), Ho the (dai dao Han Duong, chan20% HP trong4s). Van1 nut Q/touch, tong11 kieu. Skill ho tro hoi18/16s, rieng heal20/18s. Danh/trung don/vao co thi hien hinh; an thi khong hut EXP/nhat do. Server loc toa do nguoi an khoi snapshot doi thu va BOT, dong doi/ban than thay bong mo. Khong bat tu. Doi do/chet/robot huy ho tro, khong hoan CD. BAT BUOC cap nhat CA Render va HTML5 len2.14.0/rulesVersion10 (server truoc). Deploy mat phong RAM. Xem SKILLS.md.
+
+ONLINE v2.15.0 / van protocol10: goi actorRows thuong luong opt-in, giam68% phan actor tren mau12 (khong phai toan mang/FPS). Input doi~30Hz, giu/idle100ms heartbeat, pulse uu tien16ms, stop ngay. Buffer doi thu60-100ms /4 mau, ngoai suy<=80ms, reset clash/teleport/reveal, khong thay hit/cost/physics. Server skip snapshot khi queue>32KiB, resource pack1 lan/phong, VM compile1 lan/process nhung state rieng. Client2.15 van ket noi duoc server2.14; can deploy Render2.15 de co goi rows toi uu, roi thay HTML5. Chua deploy production; Render Free/RTT van co the lag. Xem PERFORMANCE.md.
+
+TUTORIAL v2.16.0: 5 buoc co ban tu hien lan dau o lobby; Bo qua/Da hieu ghi nho tren trinh duyet. Mo lai tu lobby/Huong dan. Theo cam ung/ban phim, Tab/Esc, focus an toan, blocked storage/SDK van choi duoc. SOLO dung khi xem lai, ONLINE van chay va canh bao; khong phat lenh chien dau. Protocol10 khong doi, HTML5 tuong thich backend>=2.14. Chi thay ZIP itch.io da co tutorial; Render phuc vu frontend thi deploy goi moi, mat phong RAM.
+
+MOI NHAT v2.17.0 / protocol11: bat buoc cap nhat CA backend va HTML5 len2.17. Tang moc len Lv10 x1.25, moi moc them0.075 den Lv20 x2, ceil; Lv1-9 giu nguyen. Tong Lv1->20:73315, moc19->20:12180; du tru4060/ngoc rong7 khong doi. Them Dai Chuy/Song kiem/Liem/Tang da lon/Chao chien/Ca man/Ghe go (profile20-26), 27 profile/162 stats, loot6 pham va skill cu; Doi khoi dau thanh Ga cao su le luoi (18 ATK/1.10 ASPD). Do vui khong gan vao Dien Nghia. Song kiem/than/dau vu khi co compound hitbox, moi muc tieu chi1 hit/don. Deploy server truoc, kiem tra version2.17.0/rulesVersion11 roi thay ZIP itch.io. Server<=2.16 bi tu choi. Deploy mat phong RAM.

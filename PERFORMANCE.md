@@ -1,4 +1,24 @@
-# Hiệu năng và điều hướng · v2.9.0
+# Hiệu năng và điều hướng · v2.15.0
+
+## ONLINE v2.15 (protocol10 không đổi)
+- Client xin `transport: rows-v1` khi join; server chỉ gửi `actorRows` nếu client đồng ý. `actorFields` gửi một lần ở welcome, thứ tự field/value giữ nguyên dữ liệu làm tròn và nullable. Client v2.15 tự dùng object cũ nếu backend2.14 không hỗ trợ; client2.14 vẫn nhận object từ server2.15. Không đổi input/gameplay. Tàng hình lọc theo người xem **trước** cả object/rows, inventory chỉ của chính socket; không gửi vị trí/HP người ẩn tới đối thủ.
+- Input đổi gửi tối đa khoảng30Hz; skill/dash/pulse ưu tiên khoảng16ms. Input không đổi (kể cả giữ một hướng) heartbeat100ms thay vì mỗi33ms. Stop/menu/blur/hidden vẫn gửi ngay, stale-input server350ms giữ nguyên. Pulse không nhân đôi, không mất vì so sánh gói giống nhau; client backpressure4KiB giữ nguyên. Không giảm tốc mô phỏng/kiểm tra hit/cost.
+- Đối thủ có tối đa4 mẫu vị trí, nội suy theo server elapsed với buffer mục tiêu60–100ms thích ứng jitter. Đồng hồ phát hình chạy liên tục, điều chỉnh tốc độ nhẹ khi gói đến dồn, không nhảy theo từng lần nhận; bị giới hạn trong cửa sổ lịch sử/ngoại suy. Ngoại suy sau mẫu cuối tối đa80ms, không chạy mãi khi nghẽn. Snapshot cũ/trùng bỏ qua; actor mới/reveal/teleport/clash/đổi sống/chết reset lịch sử. Chỉ thay vị trí hiển thị, không tính hit/damage/HP/EXP/safety bằng vị trí đó. Tự điều khiển vẫn dùng dự đoán cũ≤100ms, không thêm buffer60–100ms vào nhân vật mình.
+- Server bỏ gửi snapshot mới khi socket đang có>32KiB chưa thoát (cũ512KiB), giữ ngưỡng ngắt>2MB. Không thể xóa dữ liệu TCP đã xếp hàng nhưng tránh chất thêm hàng dài; trở lại gửi trạng thái đầy đủ hiện tại khi thông. Không delta-chain, không cần ack để hồi phục sau frame bị bỏ.
+- Round actor/tuple tài nguyên một lần/phòng/đợt, tái dùng giữa người xem, vẫn lọc tài nguyên bằng tọa độ thô để giữ đúng ranh giới. Rương vẫn toàn bản đồ5Hz, radar10Hz; actor15Hz/physics30Hz/AI/loot không đổi.
+- Vòng hút EXP dùng broad phase hình chữ nhật trước khi gọi hypot, cache radius/tọa độ theo actor và refresh ngay sau pickup/levelup/đổi kích thước. Không đổi kết quả hút/nhặt, thứ tự tranh ngọc, delay, cap EXP hoặc luật Tàng hình. Test so từng orb và tiến độ với vòng cũ qua5 cấp (1/10/19/20/21), ranh giới±1e−8, levelup sát biên, nhiều actor, orb có delay/ẩn/chết.
+- Compile9 script VM một lần khi mở process, mỗi phòng chạy trong context riêng; không chia sẻ actor/inventory/brain/state hoặc object luật giữa phòng. HUD ping/count chỉ viết DOM khi chữ thay đổi.
+
+### Kiểm tra v2.15 / giới hạn số đo
+- `online-performance.test.cjs`: legacy/rows có cùng giá trị, ranh giới resource, stealth/latejoin, inventory riêng, skip socket nghẽn, code cache không chia sẻ state; nội suy hữu hạn/20–120Hz/≤80ms.
+- `online-performance.browser.cjs`: trình duyệt thật, input idle10 gói/1,15s và giữ hướng12 gói/1,12s trong một lượt đo (cũ khoảng30Hz); Q đúng một pulse, menu stop trước350ms, jitter có thứ tự0–110ms/bỏ một số snapshot, lịch sử≤4, teleport snap, không tự trừ EXP. Chạy thật với backend2.14 từ ZIP cũ và frontend2.15 để kiểm tra fallback.
+- Mẫu12 actor: object8.141bytes → rows2.621bytes, giảm khoảng68% **phần actor của snapshot**, không phải68% toàn bộ mạng (orbs/resources/headers vẫn có). Tỉ lệ thay đổi theo số actor/tên/trạng thái.
+- Microbenchmark riêng vòng hút EXP trong VM,24 actor/1.350 orb khởi tạo, warm-up rồi100 lần: trung bình7,41ms →2,36ms; lần đầu hypot32.256 →70. Đây không phải toàn bộ tick server/FPS/Render; kết quả sẽ khác theo mật độ ngọc/actor và máy.
+- Tạo12 phòng tuần tự trong sandbox: warm-up/đầu vào khác nhau có dao động; trước khoảng8,7–20,4ms, sau6,4–14,4ms. Không coi là benchmark Render hoặc bảo đảm đầy128 người.
+- Không thể loại bỏ RTT, nghẽn Internet, Render Free sleep/cold start hoặc giới hạn CPU/GPU/nhiệt độ điện thoại. Nội suy đổi một phần độ trễ hình ảnh đối thủ lấy chuyển động đều; không phải rollback/lag compensation/đồng bộ không ping. Chưa triển khai production. Để được gói rows mới, cập nhật server2.15; chỉ đổi HTML5 cũng dùng được với server2.14 nhưng chưa giảm byte phía server.
+
+## Nền tảng v2.9 (lịch sử)
+Phần dưới mô tả bản tối ưu cũ; số nhịp input/giao thức cũ được thay bằng v2.15 ở trên.
 
 ## Điều khiển
 - `movementIntent()` dùng chung SOLO/ONLINE; chuẩn hóa đường chéo, giữ biên độ analog và không tự tăng tốc.

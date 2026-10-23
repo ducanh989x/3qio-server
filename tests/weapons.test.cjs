@@ -8,8 +8,8 @@ vm.runInContext(game.slice(game.indexOf('function ellipse('),game.indexOf('funct
 vm.runInContext(readFileSync(join(__dirname,'../weapons.js'),'utf8'),context);
 vm.runInContext(`
 let checks=0;
-assert.equal(WEAPON_PROFILES.length,20);checks++;
-assert.equal(new Set(WEAPON_PROFILES.map(p=>JSON.stringify(p))).size,20);checks++;
+assert.equal(WEAPON_PROFILES.length,27);checks++;
+assert.equal(new Set(WEAPON_PROFILES.map(p=>JSON.stringify(p))).size,27);checks++;
 const silhouettes=[];
 for(let level=1;level<=20;level++){
  const commands=[];let depth=0;
@@ -34,6 +34,6 @@ assert.equal(new Set(silhouettes).size,20,'20 different rendered geometries');ch
 assert.equal(WEAPON_PROFILES[1].kind,'dao');assert.equal(WEAPON_PROFILES[2].kind,'jian');
 assert.equal(WEAPON_PROFILES[9].kind,'whip');assert.equal(WEAPON_PROFILES[10].kind,'axe');
 assert.equal(WEAPON_PROFILES[16].kind,'serpent');assert.equal(WEAPON_PROFILES[18].kind,'glaive');assert.equal(WEAPON_PROFILES[19].kind,'halberd');checks+=7;
-assert.throws(()=>weapon({}, {level:21},100),RangeError);checks++;
+assert.throws(()=>weapon({}, {level:28},100),RangeError);checks++;
 console.log('Weapons: '+checks+' assertions passed (20 renderers, finite coordinates, canvas state, reach bounds, distinct silhouettes)');
 `,context);

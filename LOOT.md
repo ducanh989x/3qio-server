@@ -1,4 +1,17 @@
-# Gameplay v2.5.0
+# Gameplay v2.14.0 · protocol10
+
+## Hỗ trợ v2.14
+11 kiểu/1 Q theo mẫu Cam/Đỏ. Đoản đao Khăn Vàng Tàng hình4/5s, đại đao Quan Bình Hồi xuân25% HP, đại đao Hàn Đương Hộ thể20% HP trong4s. CD18/16s, riêng heal20/18s; không gây damage, không buff ATK/ASPD. Ẩn không hút EXP/nhặt đồ, đánh/trúng đòn/vào cờ lộ. Đổi đồ/chết/robot xóa hỗ trợ, không hoàn CD. Server lọc vị trí khỏi đối thủ/BOT. Chi tiết SKILLS.md. Cập nhật cả game/server2.14/protocol10, không dùng server cũ.
+
+## Kỹ năng/tạo hình v2.13
+Có8 kiểu thực, mỗi Cam/Đỏ1 nút Q/touch. Chi tiết cơ chế/phân bố20 mẫu, FX, thumbnail túi, xem thử Trắng/Cam/Đỏ và kiểm thử: [SKILLS.md](SKILLS.md). Bắt buộc cập nhật cả client/server2.13/protocol9. Cơ chế nhặt cao phẩm/cất Cam/Đỏ, radar rương và xác suất/EXP giữ nguyên.
+
+## Radar rương hiếm (v2.12.0, chỉ hiển thị)
+Lv4 là hình thoi tím có số4; Lv5 là ngôi sao vàng có số5, lớn hơn chấm rương thường trên minimap. Vòng sáng nhịp2,4s không nhấp nháy nhanh. Dòng RƯƠNG HIẾM dưới map đếm Lv4/Lv5 còn sống; không thông báo lớn che chiến trường. Rương có cột sáng nhẹ/hào quang và nhãn cấp nổi trên bản đồ chính, không thay kích thước hitbox/HP.
+
+Mọi rương sống Lv4/Lv5 được hiển thị ở vị trí toàn bản đồ, kể cả ở xa người chơi, trong SOLO và ONLINE. Server đã gửi toàn bộ mảng chests nên không thêm field hoặc nới phạm vi loot riêng. Rương bị phá mất dấu sau snapshot kế tiếp (rương5Hz), refill hiển thị ID/vị trí mới; không đánh dấu xác rương. Minimap vẫn10Hz. Mobile dọc giữ kích thước map gọn; mobile ngang thấp chỉ mở lại map khi có rương hiếm, ở bên trái cụm nút, không đè pause/HP/skill. prefers-reduced-motion dừng nhịp vòng sáng, vẫn giữ ký hiệu/màu/số.
+
+Không thay tỉ lệ70/15/10/4/1, bảo đảm đợt5/10, xác suất vũ khí, HP/XP/AI/nhặt đồ. Protocol8 giữ nguyên; client2.12 dùng backend2.11 được. Backend2.9/2.10 chưa có luật nhặt Cam/Đỏ mới nên vẫn phải cập nhật cả hai như mục multiplayer. Kiểm thử: chest-radar.test.cjs, chest-radar.browser.js và chest-radar-network.browser.cjs.
 
 ## EXP hạ gục (v2.3.2 — phần 20% rơi đất)
 Người kết liễu chỉ nhận ngay thưởng cơ bản `24 + 16 × cấp đối thủ`. Phần `floor(0,2 × totalXp đối thủ)` **không cộng thẳng** mà rơi thành ngọc EXP lớn quanh xác. Ví dụ Lv10/tổng 7.500 KN → nhận ngay **184 KN**, rơi thêm đúng **1.500 KN**. Phần 20% chia thành tối đa 32 viên số nguyên dương, tổng không mất/lặp giá trị, rải bán kính 85–155 (giới hạn biên), có 0,6s chờ trước khi hút/nhặt. Ai đi tới nhặt (kể cả BOT, người hỗ trợ, người thứ ba hoặc nạn nhân sau tái xuất) nhận giá trị viên đã nhặt, không dành riêng cho người kết liễu. Không có thao tác claim XP từ client.
@@ -42,17 +55,17 @@ Loại vũ khí rơi chọn trong 19 mẫu đao/kiếm/thương/đại đao/thi�
 Cùng một loại, trắng ×1,00; lục ×1,08; lam ×1,16; tím ×1,25; cam ×1,36; đỏ ×1,50 (lớn nhất). `size` phóng đều hai trục quanh điểm cầm (10,7), giữ bàn tay/gốc cầm. `baseReach` là độ dài mẫu trắng, `reach = 10 + (baseReach − 10) × size`. Chiều dày hitbox cũng nhân size; thân nhân vật tiếp tục nhân bodyScale. Đánh thường, skill, rương, chặn và bản vẽ dùng cùng hình học. Đồ trên đất cũng vẽ lớn theo phẩm; không tăng bán kính nhặt hoặc slot túi. Không cộng thêm ATK/ASPD chỉ vì phóng hình.
 
 ## Nhặt và kỹ năng
-- Tự nhặt trong bán kính nhân vật + 20, không cần nút nhặt. Vũ khí trắng–tím chỉ tự trang bị nếu phẩm cao hơn đang cầm; ngoại lệ khúc gỗ trắng được đổi sang vũ khí trắng thật. Không đổi theo DPS, không lấy đồ ngang/thấp hơn. Đồ thường cũ rơi xuống đất, trừ khúc gỗ.
-- Vũ khí vàng/cam (rarity 4) và đỏ (5) tự cất vào túi, không tự trang bị kể cả đang cầm khúc gỗ. Túi 24 ô; đầy thì đồ hiếm giữ trên đất, không xóa hoặc thay đồ khác. Mỗi món có ID riêng, kể cả trùng loại/phẩm. Ngọc rồng tự nhặt, không chiếm ô; đủ 7 thì dừng lấy thêm. Đồ không đủ điều kiện không chặn nhặt món khác.
+- Tự nhặt trong bán kính nhân vật + 20, không cần nút nhặt. Mọi phẩm, kể cả Cam/Đỏ, tự trang bị nếu phẩm cao hơn đang cầm; ngoại lệ khúc gỗ trắng được đổi sang vũ khí trắng thật. So sánh phẩm, không theo DPS. Đồ trắng–tím ngang/thấp hơn không nhặt. Đồ thường cũ rơi xuống đất, trừ khúc gỗ.
+- Cam (rarity4) và Đỏ (5) cao phẩm hơn tự cầm ngay, Cam/Đỏ cũ bị thay trở về túi. Nếu món nhặt Cam/Đỏ ngang/thấp hơn thì tự giữ trong túi. Không nhân đôi món đang cầm. Túi 24 ô: đầy vẫn nâng đồ thường lên Cam/Đỏ vì không cần cất đồ thường; nếu cần cất Cam/Đỏ cũ mà hết ô thì không nhặt/nâng, món mới ở lại trên đất. Cam/Đỏ ngang/thấp hơn cũng ở lại trên đất khi đầy. Không tự xóa đồ khác. Mỗi món có ID riêng, kể cả trùng loại/phẩm. Ngọc rồng tự nhặt, không chiếm ô; đủ 7 thì dừng lấy thêm. Đồ không đủ điều kiện không chặn nhặt món khác.
 - Vào vòng cờ bất kỳ (không cần cùng phe/chờ gia nhập) tự mở popup túi; F/nút TÚI mở lại nếu đã đóng. Chọn món để trang bị chỉ khi còn sống và đang trong vòng cờ. Rời cờ/chết/rời phòng sẽ đóng popup. Popup không tạm dừng trận và không khóa joystick; Esc đóng túi. Danh sách cuộn được trên điện thoại.
-- Đổi từ túi giữ cả hồi chiêu đánh thường/skill, hủy hoạt ảnh đòn/buff skill cũ. Đồ vàng/đỏ đang cầm trở về túi bằng ID mới; đồ thường cũ rơi xuống đất, khúc gỗ không rơi. Thay đồ hiếm khi túi đầy không làm mất đồ vì lấy món ra trước khi cất món cũ.
+- Tự nâng khi nhặt và đổi từ túi đều giữ cả hồi chiêu đánh thường/skill, hủy hoạt ảnh đòn/buff skill cũ. Đồ vàng/đỏ đang cầm trở về túi bằng ID mới; đồ thường cũ rơi xuống đất, khúc gỗ không rơi. Thay đồ hiếm khi túi đầy không làm mất đồ vì lấy món ra trước khi cất món cũ.
 - Có 0,35s chờ sau rương vỡ, 0,6s chờ với đồ đổi xuống đất. Vũ khí trên đất tồn tại 120s, ngọc rồng 300s, giới hạn 120 vật phẩm. Túi chỉ tồn tại trong lượt, tái xuất bắt đầu túi rỗng.
 - BOT cũng tự nhặt theo luật này và chọn món tốt hơn trong túi khi tới vòng cờ.
 - Cam/đỏ có đúng 1 skill theo loại, Q hoặc nút kỹ năng. Các phẩm khác không có skill.
-- Thương/xà mâu: Xuyên trận, tầm ×2,2 và góc hẹp.
-- Đại đao/đại phủ/yển nguyệt đao/họa kích: Hoành tảo, vòng tròn tầm ×1,3.
-- Đao ngắn/kiếm/thiết tiên: Liên kích, ASPD ×1,30 trong 3s.
-- Skill cam hồi 12s, đỏ 10s. Xuyên trận/Hoành tảo gây ATK ×1,20 (cam), ×1,35 (đỏ), không phụ thuộc cấp tướng. Không tiêu hao KN. Đòn thường/skill đều không gây sát thương lên đồng đội, mục tiêu bảo hộ hoặc người trong vòng cờ. Rương cũng nhận sát thương từ skill tấn công. Xuyên trận/Hoành tảo ra đòn trong 0,32s thay vì gây damage tức thì, có thể bị chặn, không dùng giữa đòn đang vung. Mỗi mục tiêu chỉ nhận một hit mỗi đòn.
+- Thương: Xuyên trận hoặc Phá phong; xà mâu: Xà ảnh. Quỹ đạo và extension khác nhau, không lao nhân vật.
+- Đại đao/đại phủ: Bổ sơn, Nguyệt trảm hoặc Song hồi tùy profile; thiết tiên Song hồi, yển nguyệt đao Nguyệt trảm, họa kích Hoành tảo.
+- Đao ngắn/kiếm: Liên kích, ASPD ×1,30 trong3s, không tự đánh. Xem bảng8 kiểu tại SKILLS.md.
+- Skill cam hồi 12s, đỏ 10s. Bảy kiểu tấn công gây ATK ×1,20 (cam), ×1,35 (đỏ), không phụ thuộc cấp tướng. Không tiêu hao KN. Đòn thường/skill đều không gây sát thương lên đồng đội, mục tiêu bảo hộ hoặc người trong vòng cờ. Rương cũng nhận sát thương từ skill tấn công. Skill tấn công vung0,32–0,44s theo kiểu, dùng hình học lưỡi thật, có thể bị chặn, không dùng giữa đòn đang vung. Song hồi hai nhịp cũng chỉ1 hit/mục tiêu. Mỗi mục tiêu chỉ nhận một hit mỗi đòn.
 
 ## Ngọc rồng
 Là vật phẩm đặc biệt phẩm đỏ, đếm cộng dồn 0–7, không chiếm ô vũ khí. Không áp dụng bộ 7 mã sao khác nhau. Tỉ lệ trên MỌI cấp rương = 0,001 × 2^số ngọc đang giữ: 0,1 / 0,2 / 0,4 / 0,8 / 1,6 / 3,2 / 6,4% cho 0–6 viên. Đây không phải tỉ lệ có điều kiện sau khi đã roll phẩm đỏ. Từ 7 viên không rơi thêm theo người đó và người đã có 7 không nhặt thêm.
@@ -62,7 +75,7 @@ Là vật phẩm đặc biệt phẩm đỏ, đếm cộng dồn 0–7, không c
 Chết/tái xuất, rời phòng hoặc máy chủ khởi động lại sẽ mất trang bị và ngọc như tiến độ nhân vật. Không có lưu tài khoản.
 
 ## Multiplayer và kiểm thử
-Máy chủ chạy chính luật shared `loot.js`/`treasures.js`/`game.js`, tự nhặt không cần cờ từ client. Client gửi điều khiển/skill hoặc `{type:'equip',itemId}`. Máy chủ kiểm tra sống, vị trí thật trong cờ và ID thuộc túi trước khi đổi. Client không chọn kết quả rương, ATK, ASPD, inventory hay số ngọc. Snapshot inventory chỉ gửi về đúng socket chủ sở hữu, không nằm trong actor công khai. Rương/drop đồng bộ 5 Hz, actor/trang bị/skill/túi 15 Hz, mô phỏng 30 Hz. Nhặt cạnh tranh và phát lại ID đã dùng không nhân đôi đồ. Protocol `rulesVersion: 7` từ chối các client v2.4.x trở xuống; cập nhật CẢ ZIP HTML5 và gói server lên v2.5.0.
+Máy chủ chạy chính luật shared `loot.js`/`treasures.js`/`game.js`, tự nhặt không cần cờ từ client. Client gửi điều khiển/skill hoặc `{type:'equip',itemId}`. Máy chủ kiểm tra sống, vị trí thật trong cờ và ID thuộc túi trước khi đổi. Client không chọn kết quả rương, ATK, ASPD, inventory hay số ngọc. Snapshot inventory chỉ gửi về đúng socket chủ sở hữu, không nằm trong actor công khai. Rương/drop đồng bộ 5 Hz, actor/trang bị/skill/túi 15 Hz, mô phỏng 30 Hz. Nhặt cạnh tranh và phát lại ID đã dùng không nhân đôi đồ. Protocol `rulesVersion: 10` từ chối client protocol≤9; cập nhật CẢ ZIP HTML5 và server lên v2.14.0. Backend Render v2.9/v2.10 cũ chưa có luật này: deploy server trước (mất phòng RAM hiện tại), kiểm tra API version2.14.0/rulesVersion10, rồi upload ZIP itch.io. `rare-auto.test.cjs` kiểm tra 36 cặp phẩm, túi đầy, cooldown, chống nhân đôi và tranh nhặt.
 
 `npm test`: luật quốc gia/vùng an toàn, 20 hình vũ khí, di chuyển/sprint, xác suất rương, ATK/ASPD độc lập cấp, 7 ngọc/21, nhặt/đổi/hồi chiêu, skill và socket thực (tranh nhặt, giả mạo trang bị, sai phiên bản).
 `playwright-cli run-code --filename=tests/loot.browser.js`: desktop/touch, phá rương + đi sát tự nhặt, chỉ nâng phẩm, popup túi ở cờ, đổi đồ/giữ hồi chiêu, 24 ô/cuộn/tap, bảy ngọc tự nhặt → Lv21, danh mục, nhịp rương và đồng hồ phòng.

@@ -6,7 +6,7 @@ const {randomUUID}=require('node:crypto');
 const {WebSocketServer,WebSocket}=require('ws');
 const {createWorld}=require('./world.cjs');
 const MAX_PLAYERS=16,MAX_ROOMS=8,STEP=1/30;
-const actorFields=['id','name','x','y','level','team','joinTime','joinTarget','hp','maxHp','xp','totalXp','stamina','swing','angle','phase','cooldown','moving','kills','alive','invincible','networkHuman','respawn','spawnAt','killerName','killerId','bountyXp','droppedXp','sprinting','weapon','dragonCount','robotSummon','skillCooldown','skillBuff','skillEffect','skillEffectKind','swingDuration','attackKind','clashSeq','clashEffect','clashX','clashY','clashAngle','clashExtension'];
+const actorFields=['id','name','x','y','level','team','joinTime','joinTarget','hp','maxHp','xp','totalXp','stamina','swing','angle','phase','cooldown','moving','kills','alive','invincible','networkHuman','respawn','spawnAt','killerName','killerId','bountyXp','droppedXp','sprinting','weapon','dragonCount','robotSummon','skillCooldown','skillBuff','skillEffect','stealthTime','shieldTime','shieldHp','skillEffectKind','swingDuration','attackKind','clashSeq','clashEffect','clashX','clashY','clashAngle','clashExtension'];
 const zeroInput=()=>({x:0,y:0,angle:0,attack:false,dash:false,sprint:false,pickup:false,skill:false});
 function sanitizeInput(message){return {x:Number.isFinite(message.x)?Math.max(-1,Math.min(1,message.x)):0,y:Number.isFinite(message.y)?Math.max(-1,Math.min(1,message.y)):0,angle:Number.isFinite(message.angle)?Math.atan2(Math.sin(message.angle),Math.cos(message.angle)):0,attack:message.attack===true,dash:message.dash===true,sprint:message.sprint===true,pickup:message.pickup===true,skill:message.skill===true}}
 function createServer({port=Number(process.env.PORT)||3002,botCount=8}={}){
@@ -15,13 +15,13 @@ function createServer({port=Number(process.env.PORT)||3002,botCount=8}={}){
  const localPublic=path.join(__dirname,'../public');
  const publicRoot=process.env.STATIC_ROOT?path.resolve(process.env.STATIC_ROOT):(fs.existsSync(path.join(localPublic,'index.html'))?localPublic:fs.existsSync(path.join(stage,'multiplayer.js'))?stage:path.join(__dirname,'..'));
  const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.ttf':'font/ttf','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
- const publicFiles=new Set(['index.html','game.js','weapons.js','kingdoms.js','style.css','kingdoms.css','multiplayer.js','multiplayer.css','multiplayer-config.js','loot.js','treasures.js','combat.js','robot.js','ai.js','chibi.js','loot.css','fonts.css','README-ITCH-IO.txt','HUONG-DAN-MULTIPLAYER.txt']);
+ const publicFiles=new Set(['index.html','game.js','weapons.js','kingdoms.js','style.css','kingdoms.css','multiplayer.js','multiplayer.css','multiplayer-config.js','loot.js','treasures.js','combat.js','robot.js','ai.js','chibi.js','loot.css','fonts.css','tutorial.js','tutorial.css','README-ITCH-IO.txt','HUONG-DAN-MULTIPLAYER.txt']);
  const server=http.createServer((req,res)=>{
   res.setHeader('X-Content-Type-Options','nosniff');
   let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://local').pathname)}catch{res.writeHead(400).end();return}
   if(pathname==='/api/status'){
    res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Cache-Control','no-store');
-   res.writeHead(200,{'Content-Type':'application/json'}).end(JSON.stringify({game:'3qio',version:'2.9.0',rulesVersion:7,multiplayer:true,matchmaking:true,rooms:rooms.size,maxPlayers:MAX_PLAYERS,maxRooms:MAX_ROOMS}));return;
+   res.writeHead(200,{'Content-Type':'application/json'}).end(JSON.stringify({game:'3qio',version:'2.17.0',rulesVersion:11,multiplayer:true,matchmaking:true,rooms:rooms.size,maxPlayers:MAX_PLAYERS,maxRooms:MAX_ROOMS}));return;
   }
   if(!['GET','HEAD'].includes(req.method)){res.writeHead(405).end();return}
   const name=pathname==='/'?'index.html':pathname.slice(1);
@@ -51,7 +51,7 @@ function createServer({port=Number(process.env.PORT)||3002,botCount=8}={}){
    let msg;try{msg=JSON.parse(raw.toString())}catch{ws.close(1008,'Invalid JSON');return}
    if(!msg||typeof msg!=='object'){ws.close(1008,'Invalid message');return}
    if(msg.type==='join'&&!ws.joined){
-    if(msg.rulesVersion!==7){send(ws,{type:'error',message:'Khác phiên bản gameplay. Hãy cập nhật cả game và máy chủ lên v2.5.0 rồi tải lại trang.'});return}
+    if(msg.rulesVersion!==11){send(ws,{type:'error',message:'Khác luật EXP/vũ khí (protocol11). Hãy cập nhật cả game và máy chủ lên v2.17.0 rồi tải lại trang.'});return}
     const automatic=msg.matchmaking==='auto';
     if(!automatic&&(typeof msg.room!=='string'||!/^[A-Z0-9-]{1,18}$/.test(msg.room))){send(ws,{type:'error',message:'Mã phòng chỉ dùng A–Z, 0–9 và dấu gạch ngang (tối đa 18 ký tự).'});return}
     // Synchronous selection + insertion prevents overbooking concurrent joins.
@@ -66,8 +66,8 @@ function createServer({port=Number(process.env.PORT)||3002,botCount=8}={}){
     if(room.clients.size>=MAX_PLAYERS){send(ws,{type:'error',message:'Phòng đã đủ 16 người. Hãy chọn mã phòng khác.'});return}
     const name=(typeof msg.name==='string'?msg.name:'Lữ khách').normalize('NFC').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,18)||'Lữ khách';
     const actor=room.world.addHuman(randomUUID(),name);
-    const record={ws,actor,lastInput:now};room.clients.set(ws,record);ws.joined={room,record};clearTimeout(deadline);
-    send(ws,{type:'welcome',rulesVersion:7,id:actor.id,room:room.code,matchmaking:room.automatic?'auto':'code',maxPlayers:MAX_PLAYERS});return;
+    const record={ws,actor,lastInput:now,compact:msg.transport==='rows-v1'};room.clients.set(ws,record);ws.joined={room,record};clearTimeout(deadline);
+    send(ws,{type:'welcome',rulesVersion:11,...(record.compact?{transport:'rows-v1',actorFields}:{}),id:actor.id,room:room.code,matchmaking:room.automatic?'auto':'code',maxPlayers:MAX_PLAYERS});return;
    }
    if(msg.type==='ping'){send(ws,{type:'pong',t:Number.isFinite(msg.t)?msg.t:0});return}
    if(!ws.joined)return;
@@ -88,11 +88,16 @@ function createServer({port=Number(process.env.PORT)||3002,botCount=8}={}){
    room.world.step(STEP);room.ticks++;
    if(room.ticks%2)continue; // 15 authoritative snapshots / second, 30 physics ticks.
    const actors=room.world.actors.map(actor=>{const out={};for(const key of actorFields)out[key]=typeof actor[key]==='number'?Math.round(actor[key]*1000)/1000:actor[key];return out});
-   for(const {ws,actor} of room.clients.values()){
-    if(ws.bufferedAmount>2e6){ws.terminate();continue}if(ws.bufferedAmount>512000)continue;
-    const snapshot={type:'state',elapsed:room.world.elapsed,inventory:actor.inventory,actors,humans:room.clients.size,bots:room.world.actors.filter(e=>!e.networkHuman).length};
+   // Serialize rounded actor values and resource tuples once per room, not per viewer.
+   // Transport is optional within protocol11: rows and object snapshots both supported.
+   const rows=actors.map(out=>actorFields.map(key=>out[key]??null)),worldActors=room.world.actors,botTotal=worldActors.filter(e=>!e.networkHuman).length;
+   const resourceFrame=room.ticks%6===0||[...room.clients.values()].some(r=>!r.ws.sentOrbs),rawOrbs=resourceFrame?room.world.orbs:[],packedOrbs=rawOrbs.map(o=>[Math.round(o.x),Math.round(o.y),o.value,Math.round(o.phase*10)/10,o.pickupAt||0]);
+   for(const {ws,actor,compact} of room.clients.values()){
+    if(ws.bufferedAmount>2e6){ws.terminate();continue}if(ws.bufferedAmount>32768)continue;
+    const visible=worldActors.map(other=>room.world.canObserveActor(actor,other));
+    const snapshot={type:'state',elapsed:room.world.elapsed,inventory:actor.inventory,...(compact?{actorRows:rows.filter((_,i)=>visible[i])}:{actors:actors.filter((_,i)=>visible[i])}),humans:room.clients.size,bots:botTotal};
     // Nearby resource snapshots at 5 Hz; full actor state remains at 15 Hz.
-    if(room.ticks%6===0||!ws.sentOrbs){snapshot.orbs=room.world.orbs.filter(o=>Math.abs(o.x-actor.x)<1250&&Math.abs(o.y-actor.y)<1000).map(o=>[Math.round(o.x),Math.round(o.y),o.value,Math.round(o.phase*10)/10,o.pickupAt||0]);snapshot.chests=room.world.chests;snapshot.drops=room.world.drops.filter(d=>Math.abs(d.x-actor.x)<1250&&Math.abs(d.y-actor.y)<1000);ws.sentOrbs=true}
+    if(room.ticks%6===0||!ws.sentOrbs){snapshot.orbs=[];for(let i=0;i<rawOrbs.length;i++)if(Math.abs(rawOrbs[i].x-actor.x)<1250&&Math.abs(rawOrbs[i].y-actor.y)<1000)snapshot.orbs.push(packedOrbs[i]);snapshot.chests=room.world.chests;snapshot.drops=room.world.drops.filter(d=>Math.abs(d.x-actor.x)<1250&&Math.abs(d.y-actor.y)<1000);ws.sentOrbs=true}
     send(ws,snapshot);
    }
   }

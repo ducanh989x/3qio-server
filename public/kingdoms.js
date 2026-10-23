@@ -21,6 +21,7 @@ const canAttack=(a,b)=>a!==b&&!isCampProtected(b)&&(teamOf(a).id==='neutral'||te
 function updateAllegiance(e,dt){
  if(!e.alive){e.joinTime=0;e.joinTarget=null;return}
  const zone=campAt(e);
+ if(zone)e.stealthTime=0;
  if(!zone||e.team===zone.team){e.joinTime=0;e.joinTarget=null;return}
  if(e.joinTarget!==zone.team){e.joinTarget=zone.team;e.joinTime=0}
  e.joinTime=Math.min(JOIN_SECONDS,e.joinTime+dt);

@@ -1,12 +1,12 @@
 {
   "name": "3qio-multiplayer",
-  "version": "2.9.0",
+  "version": "2.17.0",
   "private": true,
   "description": "3Q.io authoritative multiplayer server and HTML5 client",
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server/index.cjs",
-    "test": "node tests/kingdoms.test.cjs && node tests/weapons.test.cjs && node --test tests/multiplayer.test.cjs tests/sprint.test.cjs tests/trails.test.cjs tests/loot.test.cjs tests/loot-network.test.cjs tests/combat.test.cjs tests/robot.test.cjs tests/kill-xp.test.cjs tests/balance.test.cjs tests/matchmaking.test.cjs tests/deploy.test.cjs tests/ai.test.cjs tests/ai-network.test.cjs tests/chibi.test.cjs tests/smooth.test.cjs"
+    "test": "node tests/kingdoms.test.cjs && node tests/weapons.test.cjs && node --test tests/multiplayer.test.cjs tests/sprint.test.cjs tests/trails.test.cjs tests/loot.test.cjs tests/loot-network.test.cjs tests/combat.test.cjs tests/robot.test.cjs tests/kill-xp.test.cjs tests/balance.test.cjs tests/matchmaking.test.cjs tests/deploy.test.cjs tests/ai.test.cjs tests/ai-network.test.cjs tests/chibi.test.cjs tests/smooth.test.cjs tests/rare-auto.test.cjs tests/chest-radar.test.cjs tests/skills.test.cjs tests/skills-network.test.cjs tests/utility.test.cjs tests/online-performance.test.cjs tests/odd-weapons.test.cjs"
   },
   "dependencies": { "ws": "^8.18.3" }
 }
